@@ -36,7 +36,7 @@ export function Header({ totalPrompts, totalCategories }: HeaderProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="max-w-2xl text-base text-muted-foreground sm:text-lg"
+          className="max-w-2xl text-lg text-muted-foreground sm:text-xl"
         >
           A curated library of layout prompts for vibe coders. Pick a structure,
           copy the prompt, paste it into your AI tool — and let it match your
