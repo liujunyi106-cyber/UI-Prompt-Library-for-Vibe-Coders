@@ -5,6 +5,7 @@ import React from "react";
 interface CardPreviewProps {
   category: string;
   title: string;
+  isDark?: boolean;
 }
 
 const C = {
@@ -12,28 +13,38 @@ const C = {
   s: "#fed7aa",
   l: "#fff7ed",
   a: "#f97316",
+  // 暗色模式背景色
+  dl: "#2a2520",
+  ds: "#3d3530",
+  dw: "#3a3228",
 };
 
-export function CardPreview({ category, title }: CardPreviewProps) {
+export function CardPreview({ category, title, isDark = false }: CardPreviewProps) {
   const id = `${category}-${title}`.replace(/\s+/g, "-").toLowerCase();
+  const bg = isDark ? C.dl : C.l;
+  const cardBg = isDark ? C.dw : "#fff";
+  const accent = isDark ? C.ds : C.s;
 
-  const box = (x: number, y: number, w: number, h: number, fill: string, r = 3, sw = 0.5) => (
-    <rect key={`${id}-${x}-${y}`} x={x} y={y} width={w} height={h} fill={fill} rx={r} stroke={C.s} strokeWidth={sw} />
-  );
-  const cir = (cx: number, cy: number, r: number, fill: string, op = 1) => (
-    <circle key={`${id}-c-${cx}-${cy}`} cx={cx} cy={cy} r={r} fill={fill} opacity={op} />
-  );
+  const box = (x: number, y: number, w: number, h: number, fill: string, r = 3, sw = 0.5) => {
+    const f = fill === "#fff" ? cardBg : fill === C.l ? bg : fill === C.s ? accent : fill;
+    return <rect key={`${id}-${x}-${y}`} x={x} y={y} width={w} height={h} fill={f} rx={r} stroke={accent} strokeWidth={sw} />;
+  };
+  const cir = (cx: number, cy: number, r: number, fill: string, op = 1) => {
+    const f = fill === C.s ? accent : fill;
+    return <circle key={`${id}-c-${cx}-${cy}`} cx={cx} cy={cy} r={r} fill={f} opacity={op} />;
+  };
   const line = (x1: number, y1: number, x2: number, y2: number) => (
-    <line key={`${id}-l-${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={C.s} strokeWidth={0.5} />
+    <line key={`${id}-l-${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={accent} strokeWidth={0.5} />
   );
-  const bar = (x: number, y: number, w: number, h = 3, fill?: string) => (
-    <rect key={`${id}-b-${x}-${y}`} x={x} y={y} width={w} height={h} fill={fill || C.s} rx={1} />
-  );
+  const bar = (x: number, y: number, w: number, h = 3, fill?: string) => {
+    const f = fill === C.s || !fill ? accent : fill;
+    return <rect key={`${id}-b-${x}-${y}`} x={x} y={y} width={w} height={h} fill={f} rx={1} />;
+  };
 
   return (
     <svg viewBox="0 0 200 120" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <rect width="200" height="120" fill={C.l} rx="4" />
-      {renderPreview(category, title, box, cir, line, bar)}
+      <rect width="200" height="120" fill={bg} rx="4" />
+      {renderPreview(category, title, box, cir, line, bar, isDark, bg, cardBg, accent)}
     </svg>
   );
 }
@@ -43,7 +54,7 @@ type CirFn = (cx: number, cy: number, r: number, fill: string, op?: number) => R
 type LineFn = (x1: number, y1: number, x2: number, y2: number) => React.ReactNode;
 type BarFn = (x: number, y: number, w: number, h?: number, fill?: string) => React.ReactNode;
 
-function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line: LineFn, bar: BarFn): React.ReactNode[] {
+function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line: LineFn, bar: BarFn, isDark: boolean, bg: string, cardBg: string, accent: string): React.ReactNode[] {
   const els: React.ReactNode[] = [];
 
   if (cat === "Auth Forms") {
@@ -153,9 +164,9 @@ function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line:
       els.push(<polygon key="play" points="95,40 95,70 120,55" fill={C.p} />);
       els.push(box(70, 100, 60, 12, C.p, 4));
     } else if (title.includes("gradient") || title.includes("mesh")) {
-      els.push(<defs key="defs"><linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={0.3} /><stop offset="100%" stopColor={C.s} stopOpacity={0.5} /></linearGradient></defs>);
+      els.push(<defs key="defs"><linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.5 : 0.3} /><stop offset="100%" stopColor={accent} stopOpacity={isDark ? 0.7 : 0.5} /></linearGradient></defs>);
       els.push(<rect key="bg" width="200" height="120" fill="url(#hg1)" rx="4" />);
-      els.push(bar(40, 30, 120, 10, "#fff"), bar(60, 45, 80, 6, "#fff"), bar(70, 55, 60, 4, "#fff"), box(80, 70, 40, 12, C.p, 4));
+      els.push(bar(40, 30, 120, 10, cardBg), bar(60, 45, 80, 6, cardBg), bar(70, 55, 60, 4, cardBg), box(80, 70, 40, 12, C.p, 4));
     } else if (title.includes("Terminal") || title.includes("code")) {
       els.push(box(30, 15, 140, 80, "#1e293b", 6, 0));
       els.push(cir(42, 25, 3, "#ef4444"), cir(52, 25, 3, "#eab308"), cir(62, 25, 3, "#22c55e"));
@@ -171,9 +182,9 @@ function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line:
     }
   } else if (cat === "CTA Banners") {
     if (title.includes("Full-bleed") || title.includes("gradient banner")) {
-      els.push(<defs key="defs"><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={C.p} stopOpacity={0.7} /><stop offset="100%" stopColor={C.a} stopOpacity={0.85} /></linearGradient></defs>);
+      els.push(<defs key="defs"><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.8 : 0.7} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.9 : 0.85} /></linearGradient></defs>);
       els.push(<rect key="bg" width="200" height="120" fill="url(#cg1)" rx="4" />);
-      els.push(box(75, 70, 50, 16, "#fff", 4));
+      els.push(box(75, 70, 50, 16, cardBg, 4));
     } else if (title.includes("Split CTA")) {
       els.push(box(20, 25, 160, 70, "#fff", 6), bar(35, 40, 80, 8, C.s), bar(35, 55, 80, 4, C.s), bar(35, 65, 60, 4, C.s));
       els.push(box(140, 50, 30, 30, C.p, 4));
@@ -207,7 +218,7 @@ function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line:
     } else if (title.includes("Vertical")) {
       els.push(box(60, 10, 80, 100, "#fff", 6), line(75, 60, 125, 60));
     } else if (title.includes("full-bleed") || title.includes("image")) {
-      els.push(<defs key="defs"><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={0.5} /><stop offset="100%" stopColor={C.a} stopOpacity={0.7} /></linearGradient></defs>);
+      els.push(<defs key="defs"><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.6 : 0.5} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.8 : 0.7} /></linearGradient></defs>);
       els.push(<rect key="bg" width="200" height="120" fill="url(#sg1)" rx="4" />);
     } else if (title.includes("Card-based")) {
       els.push(box(10, 25, 55, 70, "#fff"), box(72, 25, 56, 70, "#fff"), box(135, 25, 55, 70, "#fff"));
@@ -228,9 +239,9 @@ function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line:
     } else if (title.includes("Floating pill")) {
       els.push(box(40, 15, 120, 25, "#fff", 12), box(50, 22, 25, 10, C.p, 2), bar(85, 24, 15, 6, C.s), bar(108, 24, 15, 6, C.s), box(131, 22, 20, 10, C.p, 4));
     } else if (title.includes("Transparent")) {
-      els.push(<defs key="defs"><linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={0.3} /><stop offset="100%" stopColor={C.a} stopOpacity={0.5} /></linearGradient></defs>);
+      els.push(<defs key="defs"><linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.5 : 0.3} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.7 : 0.5} /></linearGradient></defs>);
       els.push(<rect key="bg" width="200" height="120" fill="url(#tg1)" rx="4" />);
-      els.push(box(10, 10, 180, 25, "#fff", 4, 0), bar(20, 17, 25, 10, "#fff"), bar(60, 19, 15, 6, "#fff"), bar(85, 19, 15, 6, "#fff"), box(155, 17, 25, 10, "#fff", 4));
+      els.push(box(10, 10, 180, 25, cardBg, 4, 0), bar(20, 17, 25, 10, cardBg), bar(60, 19, 15, 6, cardBg), bar(85, 19, 15, 6, cardBg), box(155, 17, 25, 10, cardBg, 4));
     } else if (title.includes("Command-palette")) {
       els.push(box(10, 15, 180, 25, "#fff"), box(20, 22, 25, 10, C.p, 2), box(60, 20, 80, 14, C.l, 4), bar(160, 22, 20, 10, C.s));
     } else if (title.includes("Bottom mobile")) {
