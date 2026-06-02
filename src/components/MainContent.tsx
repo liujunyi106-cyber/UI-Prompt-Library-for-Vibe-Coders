@@ -928,22 +928,21 @@ export function MainContent({ activeCategory, searchQuery, onCategoryVisible }: 
           ))}
         </section>
       ) : (
-        categories.map((category) => (
+        <>
           <section
-            key={category.name}
-            id={getCategoryAnchorId(category.name)}
+            id={getCategoryAnchorId("All")}
             className="px-4 py-6 sm:px-6 sm:py-10 md:px-10 md:py-10"
           >
-            <div className="mb-6">
+            <div className="mb-6 border-b border-border pb-3">
               <h2 className="text-[46px] font-bold text-foreground leading-tight">
-                {category.name}
+                All
               </h2>
               <p className="text-[28px] text-muted-foreground/70 mt-2">
-                {category.count} prompts
+                {prompts.length} prompts
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {getPromptsByCategory(category.name).map((prompt, index) => (
+              {prompts.map((prompt, index) => (
                 <PromptCard
                   key={prompt.id}
                   title={prompt.title}
@@ -955,7 +954,35 @@ export function MainContent({ activeCategory, searchQuery, onCategoryVisible }: 
               ))}
             </div>
           </section>
-        ))
+          {categories.map((category) => (
+            <section
+              key={category.name}
+              id={getCategoryAnchorId(category.name)}
+              className="px-4 py-6 sm:px-6 sm:py-10 md:px-10 md:py-10"
+            >
+              <div className="mb-6">
+                <h2 className="text-[46px] font-bold text-foreground leading-tight">
+                  {category.name}
+                </h2>
+                <p className="text-[28px] text-muted-foreground/70 mt-2">
+                  {category.count} prompts
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {getPromptsByCategory(category.name).map((prompt, index) => (
+                  <PromptCard
+                    key={prompt.id}
+                    title={prompt.title}
+                    description={prompt.description}
+                    category={prompt.category}
+                    prompt={prompt.prompt}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+        </>
       )}
 
       <motion.footer
