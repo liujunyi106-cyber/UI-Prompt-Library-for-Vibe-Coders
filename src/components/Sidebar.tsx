@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { Search, Moon, Sun, Menu, X } from "lucide-react";
+import { Search, Moon, Sun, Menu, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -30,6 +30,11 @@ const categories: Category[] = [
   { name: "Bonus", count: 5 },
 ];
 
+interface Prompt {
+  title: string;
+  category: string;
+}
+
 interface SidebarProps {
   activeCategory: string;
   onCategoryChange: (category: string) => void;
@@ -37,6 +42,7 @@ interface SidebarProps {
   onThemeToggle: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  prompts: Prompt[];
 }
 
 export function Sidebar({
@@ -46,10 +52,31 @@ export function Sidebar({
   onThemeToggle,
   searchQuery,
   onSearchChange,
+  prompts,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+
+  const categoriesWithResults = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const query = searchQuery.toLowerCase();
+    const matchingCategories = new Set<string>();
+    prompts.forEach((p) => {
+      if (p.title.toLowerCase().includes(query)) {
+        matchingCategories.add(p.category);
+      }
+    });
+    matchingCategories.add("All");
+    return matchingCategories;
+  }, [searchQuery, prompts]);
+
+  const canClickCategory = (categoryName: string) => {
+    if (!categoriesWithResults) return true;
+    return categoriesWithResults.has(categoryName);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -69,11 +96,44 @@ export function Sidebar({
   const filteredCategories = categories;
 
   const handleCategoryClick = (categoryName: string) => {
+    if (!canClickCategory(categoryName)) return;
     onCategoryChange(categoryName);
     if (isMobile) {
       setIsMobileOpen(false);
     }
   };
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+  }, []);
+
+  const handleDragMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+      const diff = e.clientX - dragStartX.current;
+      if (diff > 50) {
+        setIsCollapsed(false);
+        setIsDragging(false);
+      }
+    },
+    [isDragging]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleDragMove);
+      window.addEventListener("mouseup", handleDragEnd);
+      return () => {
+        window.removeEventListener("mousemove", handleDragMove);
+        window.removeEventListener("mouseup", handleDragEnd);
+      };
+    }
+  }, [isDragging, handleDragMove, handleDragEnd]);
 
   const handleClose = () => {
     if (isMobile) {
@@ -102,7 +162,7 @@ export function Sidebar({
           onClick={handleClose}
           className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
         >
-          {shouldShowCollapsed ? <Menu size={20} /> : <X size={20} />}
+          {shouldShowCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
 
@@ -132,34 +192,40 @@ export function Sidebar({
       <nav className="flex-1 overflow-y-auto px-3 py-2">
         <ul className="space-y-1">
           {filteredCategories.length > 0 ? (
-            filteredCategories.map((category) => (
-              <li key={category.name}>
-                <button
-                  onClick={() => handleCategoryClick(category.name)}
-                  className={cn(
-                    "flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
-                    activeCategory === category.name
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  {shouldShowCollapsed ? (
-                    <span className="mx-auto text-xs">
-                      {category.name.charAt(0)}
-                    </span>
-                  ) : (
-                    <>
-                      <span className="flex-1 text-left whitespace-nowrap">
-                        {category.name}
+            filteredCategories.map((category) => {
+              const isEnabled = canClickCategory(category.name);
+              return (
+                <li key={category.name}>
+                  <button
+                    onClick={() => handleCategoryClick(category.name)}
+                    disabled={!isEnabled}
+                    className={cn(
+                      "flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
+                      activeCategory === category.name
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : isEnabled
+                        ? "text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
+                        : "text-muted-foreground/50 cursor-not-allowed hover:bg-secondary/50"
+                    )}
+                  >
+                    {shouldShowCollapsed ? (
+                      <span className="mx-auto text-xs">
+                        {category.name.charAt(0)}
                       </span>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        {category.count}
-                      </span>
-                    </>
-                  )}
-                </button>
-              </li>
-            ))
+                    ) : (
+                      <>
+                        <span className="flex-1 text-left whitespace-nowrap">
+                          {category.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          {category.count}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </li>
+              );
+            })
           ) : (
             <li className="px-3 py-2 text-sm text-muted-foreground">
               No categories found
@@ -221,10 +287,12 @@ export function Sidebar({
           width: shouldShowCollapsed ? 64 : 287,
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
+        onMouseDown={shouldShowCollapsed ? handleDragStart : undefined}
         className={cn(
           "flex h-full flex-col border-r border-border bg-card shrink-0 overflow-hidden",
           isMobile ? "fixed z-50" : "relative",
-          isMobile && !isMobileOpen && "hidden"
+          isMobile && !isMobileOpen && "hidden",
+          shouldShowCollapsed && "cursor-grab active:cursor-grabbing"
         )}
       >
         {sidebarContent}
