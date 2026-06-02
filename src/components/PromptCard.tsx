@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Copy, Check, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CardPreview } from "./CardPreview";
 
@@ -22,17 +22,6 @@ export function PromptCard({
 }: PromptCardProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const check = () => setIsDark(document.documentElement.classList.contains("dark") || mq.matches);
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    mq.addEventListener("change", check);
-    return () => { observer.disconnect(); mq.removeEventListener("change", check); };
-  }, []);
 
   const handleCopy = async () => {
     console.log("Copy clicked, prompt:", prompt?.substring(0, 30));
@@ -73,9 +62,9 @@ export function PromptCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="mb-4 rounded-lg border border-border/60 bg-secondary p-3">
+      <div className="mb-4 rounded-lg border border-border/60 bg-[var(--diagram-bg)] p-3">
         <div className="flex h-40 items-center justify-center overflow-hidden rounded">
-          <CardPreview category={category} title={title} isDark={isDark} />
+          <CardPreview category={category} title={title} />
         </div>
       </div>
 
