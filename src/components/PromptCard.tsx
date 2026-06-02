@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Copy, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface PromptCardProps {
   title: string;
@@ -24,44 +23,40 @@ export function PromptCard({
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCopy = async () => {
+    console.log("Copy clicked, prompt:", prompt?.substring(0, 30));
+    
     try {
-      // 尝试使用现代 Clipboard API
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(prompt);
-      } else {
-        // 备用方案：使用传统方法
-        const textArea = document.createElement("textarea");
-        textArea.value = prompt;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
+      // 创建临时textarea元素
+      const textArea = document.createElement("textarea");
+      textArea.value = prompt;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const result = document.execCommand("copy");
+      console.log("Copy result:", result);
+      
+      document.body.removeChild(textArea);
+      
+      if (result) {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
       }
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
     }
   };
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ 
-        opacity: 1, 
-        y: isHovered ? -6 : 0,
-        transition: { 
-          duration: isHovered ? 0.2 : 0.15,
-          delay: isHovered ? 0 : index * 0.02
-        }
-      }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+    <article
       className={cn(
-        "group relative flex flex-col rounded-xl border p-4",
+        "group relative flex flex-col rounded-xl border p-4 transition-all duration-200",
         isHovered
-          ? "border-primary/40 shadow-lg ring-1 ring-primary/20"
+          ? "border-primary/40 shadow-lg ring-1 ring-primary/20 -translate-y-1.5"
           : "border-border/50 hover:border-border"
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -85,9 +80,11 @@ export function PromptCard({
 
       <div className="mt-4 flex flex-col gap-2">
         <button
+          type="button"
           onClick={handleCopy}
+          style={{ cursor: 'pointer' }}
           className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:scale-[1.02] active:scale-[0.98]",
+            "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
             isCopied
               ? "bg-green-500 text-white"
               : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -106,6 +103,6 @@ export function PromptCard({
           )}
         </button>
       </div>
-    </motion.article>
+    </article>
   );
 }
