@@ -29,11 +29,10 @@ export default function Home() {
     }
   };
 
-  const smoothScrollTo = (element: HTMLElement, duration: number = 800) => {
+  const smoothScrollTo = (targetPosition: number, duration: number = 800) => {
     const mainContent = document.querySelector('main');
     if (!mainContent) return;
 
-    const targetPosition = element.offsetTop - 20;
     const startPosition = mainContent.scrollTop;
     const distance = targetPosition - startPosition;
     let startTime: number | null = null;
@@ -59,18 +58,27 @@ export default function Home() {
   };
 
   const handleCategoryChange = useCallback((category: string) => {
+    const mainContent = document.querySelector('main');
+    if (!mainContent) return;
+
+    const currentScrollPosition = mainContent.scrollTop;
+    
     setActiveCategory(category);
     
     setTimeout(() => {
-      const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-      const element = document.getElementById(anchorId);
-      if (element) {
-        smoothScrollTo(element, 800);
-      } else if (category === "All") {
-        const mainContent = document.querySelector('main');
-        if (mainContent) {
-          smoothScrollTo(mainContent, 600);
-        }
+      if (category === "All") {
+        smoothScrollTo(0, 600);
+      } else {
+        mainContent.scrollTop = 0;
+        
+        setTimeout(() => {
+          const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+          const element = document.getElementById(anchorId);
+          if (element) {
+            const targetPosition = element.offsetTop - 20;
+            smoothScrollTo(targetPosition, 800);
+          }
+        }, 50);
       }
     }, 150);
   }, []);
