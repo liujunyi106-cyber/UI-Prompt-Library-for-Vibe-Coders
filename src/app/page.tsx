@@ -7,6 +7,7 @@ import { MainContent } from "@/components/MainContent";
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -35,8 +36,10 @@ export default function Home() {
         onCategoryChange={setActiveCategory}
         isDarkMode={isDarkMode}
         onThemeToggle={handleThemeToggle}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
-      <MainContent activeCategory={activeCategory} />
+      <MainContent activeCategory={activeCategory} searchQuery={searchQuery} />
     </div>
   );
 }

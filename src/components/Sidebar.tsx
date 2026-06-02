@@ -35,6 +35,8 @@ interface SidebarProps {
   onCategoryChange: (category: string) => void;
   isDarkMode: boolean;
   onThemeToggle: () => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
 export function Sidebar({
@@ -42,19 +44,20 @@ export function Sidebar({
   onCategoryChange,
   isDarkMode,
   onThemeToggle,
+  searchQuery,
+  onSearchChange,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) {
-        setIsCollapsed(false);
+      if (!mobile) {
         setIsMobileOpen(false);
+        setIsCollapsed(false);
       }
     };
 
@@ -63,9 +66,7 @@ export function Sidebar({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCategories = categories;
 
   const handleCategoryClick = (categoryName: string) => {
     onCategoryChange(categoryName);
@@ -87,25 +88,16 @@ export function Sidebar({
   const sidebarContent = (
     <>
       <div className="flex items-center justify-between p-4">
-        <AnimatePresence>
-          {!shouldShowCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                  V
-                </div>
-                <span className="text-lg font-semibold text-foreground whitespace-nowrap">
-                  Prompt Library
-                </span>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {!shouldShowCollapsed && (
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+              V
+            </div>
+            <span className="text-lg font-semibold text-foreground whitespace-nowrap">
+              Prompt Library
+            </span>
+          </Link>
+        )}
         <button
           onClick={handleClose}
           className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
@@ -114,86 +106,76 @@ export function Sidebar({
         </button>
       </div>
 
-      <AnimatePresence>
-        {!shouldShowCollapsed && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="px-4 pb-4"
-          >
-            <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder="Search prompts…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
-                /
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!shouldShowCollapsed && (
+        <div className="px-4 pb-4">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              size={16}
+            />
+            <input
+              type="text"
+              placeholder="Search prompts…"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
+              /
+            </span>
+          </div>
+        </div>
+      )}
 
       <nav className="flex-1 overflow-y-auto px-3 py-2">
         <ul className="space-y-1">
-          {filteredCategories.map((category) => (
-            <li key={category.name}>
-              <button
-                onClick={() => handleCategoryClick(category.name)}
-                className={cn(
-                  "flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
-                  activeCategory === category.name
-                    ? "bg-primary text-primary-foreground font-semibold"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                )}
-              >
-                {shouldShowCollapsed ? (
-                  <span className="mx-auto text-xs">
-                    {category.name.charAt(0)}
-                  </span>
-                ) : (
-                  <>
-                    <span className="flex-1 text-left whitespace-nowrap">
-                      {category.name}
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => (
+              <li key={category.name}>
+                <button
+                  onClick={() => handleCategoryClick(category.name)}
+                  className={cn(
+                    "flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
+                    activeCategory === category.name
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  {shouldShowCollapsed ? (
+                    <span className="mx-auto text-xs">
+                      {category.name.charAt(0)}
                     </span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      {category.count}
-                    </span>
-                  </>
-                )}
-              </button>
+                  ) : (
+                    <>
+                      <span className="flex-1 text-left whitespace-nowrap">
+                        {category.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        {category.count}
+                      </span>
+                    </>
+                  )}
+                </button>
+              </li>
+            ))
+          ) : (
+            <li className="px-3 py-2 text-sm text-muted-foreground">
+              No categories found
             </li>
-          ))}
+          )}
         </ul>
       </nav>
 
       <div className="border-t border-border p-4">
         <div className="flex items-center justify-between">
-          <AnimatePresence>
-            {!shouldShowCollapsed && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Link
-                  href="/about"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-                >
-                  About
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {!shouldShowCollapsed && (
+            <Link
+              href="/about"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              About
+            </Link>
+          )}
           <button
             onClick={onThemeToggle}
             className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"

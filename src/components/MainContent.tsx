@@ -189,16 +189,25 @@ const prompts: Prompt[] = [
 
 interface MainContentProps {
   activeCategory: string;
+  searchQuery: string;
 }
 
-export function MainContent({ activeCategory }: MainContentProps) {
-  const filteredPrompts = useMemo(
-    () =>
-      activeCategory === "All"
-        ? prompts
-        : prompts.filter((p) => p.category === activeCategory),
-    [activeCategory]
-  );
+export function MainContent({ activeCategory, searchQuery }: MainContentProps) {
+  const filteredPrompts = useMemo(() => {
+    let filtered = prompts;
+    
+    if (activeCategory !== "All") {
+      filtered = filtered.filter((p) => p.category === activeCategory);
+    }
+    
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((p) =>
+        p.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [activeCategory, searchQuery]);
 
   return (
     <main className="flex-1 overflow-y-auto min-w-0">
