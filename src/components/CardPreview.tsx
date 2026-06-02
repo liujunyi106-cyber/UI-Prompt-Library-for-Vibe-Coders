@@ -8,417 +8,640 @@ interface CardPreviewProps {
   isDark?: boolean;
 }
 
-const C = {
-  p: "#fb923c",
-  s: "#fed7aa",
-  l: "#fff7ed",
-  a: "#f97316",
-  // 暗色模式背景色
-  dl: "#2a2520",
-  ds: "#3d3530",
-  dw: "#3a3228",
-};
-
 export function CardPreview({ category, title, isDark = false }: CardPreviewProps) {
   const id = `${category}-${title}`.replace(/\s+/g, "-").toLowerCase();
-  const bg = isDark ? C.dl : C.l;
-  const cardBg = isDark ? C.dw : "#fff";
-  const accent = isDark ? C.ds : C.s;
 
-  const box = (x: number, y: number, w: number, h: number, fill: string, r = 3, sw = 0.5) => {
-    const f = fill === "#fff" ? cardBg : fill === C.l ? bg : fill === C.s ? accent : fill;
-    return <rect key={`${id}-${x}-${y}`} x={x} y={y} width={w} height={h} fill={f} rx={r} stroke={accent} strokeWidth={sw} />;
-  };
-  const cir = (cx: number, cy: number, r: number, fill: string, op = 1) => {
-    const f = fill === C.s ? accent : fill;
-    return <circle key={`${id}-c-${cx}-${cy}`} cx={cx} cy={cy} r={r} fill={f} opacity={op} />;
-  };
-  const line = (x1: number, y1: number, x2: number, y2: number) => (
-    <line key={`${id}-l-${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={accent} strokeWidth={0.5} />
+  const bg = isDark ? "#292524" : "#fff7ed";
+  const fg5 = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)";
+  const fg10 = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
+  const fg15 = isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)";
+  const fg25 = isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)";
+  const fg30 = isDark ? "rgba(255,255,255,0.30)" : "rgba(0,0,0,0.30)";
+  const fg40 = isDark ? "rgba(255,255,255,0.40)" : "rgba(0,0,0,0.40)";
+  const accent = "#fb923c";
+  const accentFill = isDark ? "#ea7e1a" : "#fb923c";
+  const border = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)";
+
+  const R = (x: number, y: number, w: number, h: number, fill: string, rx = 3, sw = 0, stroke?: string) => (
+    <rect key={`${id}-${x}-${y}-${w}`} x={x} y={y} width={w} height={h} fill={fill} rx={rx} stroke={stroke || "none"} strokeWidth={sw} />
   );
-  const bar = (x: number, y: number, w: number, h = 3, fill?: string) => {
-    const f = fill === C.s || !fill ? accent : fill;
-    return <rect key={`${id}-b-${x}-${y}`} x={x} y={y} width={w} height={h} fill={f} rx={1} />;
-  };
+  const C = (cx: number, cy: number, r: number, fill: string) => (
+    <circle key={`${id}-c-${cx}-${cy}`} cx={cx} cy={cy} r={r} fill={fill} />
+  );
+  const L = (x1: number, y1: number, x2: number, y2: number, stroke?: string, sw = 0.5) => (
+    <line key={`${id}-l-${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke || fg30} strokeWidth={sw} />
+  );
+  const Pg = (points: string, fill: string) => (
+    <polygon key={`${id}-pg-${points.slice(0,10)}`} points={points} fill={fill} />
+  );
 
   return (
-    <svg viewBox="0 0 200 120" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <rect width="200" height="120" fill={bg} rx="4" />
-      {renderPreview(category, title, box, cir, line, bar, isDark, bg, cardBg, accent)}
+    <svg viewBox="0 0 200 120" className="w-full h-full" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="0.5" y="0.5" width="199" height="119" rx="6" fill={bg} stroke={border} />
+      {render(category, title, R, C, L, Pg, fg5, fg10, fg15, fg25, fg30, fg40, accent, accentFill, border)}
     </svg>
   );
 }
 
-type BoxFn = (x: number, y: number, w: number, h: number, fill: string, r?: number, sw?: number) => React.ReactNode;
-type CirFn = (cx: number, cy: number, r: number, fill: string, op?: number) => React.ReactNode;
-type LineFn = (x1: number, y1: number, x2: number, y2: number) => React.ReactNode;
-type BarFn = (x: number, y: number, w: number, h?: number, fill?: string) => React.ReactNode;
+type RFn = (x: number, y: number, w: number, h: number, fill: string, rx?: number, sw?: number, stroke?: string) => React.ReactNode;
+type CFn = (cx: number, cy: number, r: number, fill: string) => React.ReactNode;
+type LFn = (x1: number, y1: number, x2: number, y2: number, stroke?: string, sw?: number) => React.ReactNode;
+type PFn = (points: string, fill: string) => React.ReactNode;
 
-function renderPreview(cat: string, title: string, box: BoxFn, cir: CirFn, line: LineFn, bar: BarFn, isDark: boolean, bg: string, cardBg: string, accent: string): React.ReactNode[] {
-  const els: React.ReactNode[] = [];
+function render(
+  cat: string, title: string,
+  R: RFn, C: CFn, L: LFn, Pg: PFn,
+  fg5: string, fg10: string, fg15: string, fg25: string, fg30: string, fg40: string,
+  accent: string, accentFill: string, border: string
+): React.ReactNode[] {
+  const e: React.ReactNode[] = [];
 
   if (cat === "Auth Forms") {
     if (title.includes("Split-screen")) {
-      els.push(box(10, 10, 85, 100, "#fff"), box(105, 10, 85, 100, C.s, 4, 0));
-      els.push(bar(20, 25, 65, 8, C.s), box(20, 40, 65, 12, C.l), box(20, 58, 65, 12, C.l), box(20, 80, 65, 20, C.p, 4));
-      els.push(cir(147, 60, 20, C.p, 0.2));
+      e.push(R(8, 8, 88, 104, fg5, 4));
+      e.push(R(20, 28, 50, 3, fg40, 2));
+      e.push(R(20, 42, 64, 10, "none", 4, 1, fg30));
+      e.push(R(20, 56, 64, 10, "none", 4, 1, fg30));
+      e.push(R(20, 74, 64, 10, accentFill, 3));
+      e.push(R(104, 8, 88, 104, fg10, 4));
+      e.push(C(148, 60, 18, fg15));
     } else if (title.includes("Centered card")) {
-      els.push(box(50, 15, 100, 90, "#fff", 6), bar(65, 30, 70, 8, C.s), box(65, 45, 70, 10, C.l), box(65, 60, 70, 10, C.l), box(65, 78, 70, 18, C.p, 4));
+      e.push(R(4, 4, 192, 112, fg5, 4));
+      e.push(R(50, 20, 100, 84, "none", 4, 1, fg40));
+      e.push(R(70, 32, 60, 3, fg40, 2));
+      e.push(R(62, 44, 76, 9, "none", 4, 1, fg30));
+      e.push(R(62, 58, 76, 9, "none", 4, 1, fg30));
+      e.push(R(62, 74, 76, 9, accentFill, 3));
     } else if (title.includes("Minimal")) {
-      els.push(cir(100, 25, 10, C.p, 0.3), bar(60, 42, 80, 8, C.s), box(50, 58, 100, 10, "#fff"), box(50, 74, 100, 10, "#fff"), box(50, 92, 100, 16, C.p, 4));
+      e.push(C(100, 20, 5, fg40));
+      e.push(R(70, 34, 60, 4, fg40, 2));
+      e.push(R(50, 48, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 62, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 78, 100, 9, accentFill, 3));
     } else if (title.includes("Social")) {
-      els.push(box(50, 15, 100, 90, "#fff", 6));
-      els.push(box(60, 25, 80, 12, C.p, 4), box(60, 42, 80, 12, C.p, 4), box(60, 59, 80, 12, C.p, 4));
-      els.push(line(60, 80, 140, 80), box(60, 88, 80, 10, C.l));
+      e.push(R(50, 14, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 28, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 42, 100, 9, "none", 4, 1, fg30));
+      e.push(L(56, 62, 92, 62, fg40), R(96, 60, 8, 4, fg25, 2));
+      e.push(R(50, 72, 100, 9, "none", 4, 1, fg30));
     } else if (title.includes("Magic link")) {
-      els.push(box(50, 30, 100, 60, "#fff", 6), box(65, 42, 70, 10, C.l), box(65, 60, 70, 18, C.p, 4));
+      e.push(R(70, 34, 60, 4, fg40, 2));
+      e.push(R(40, 50, 120, 11, "none", 4, 1, fg30));
+      e.push(R(40, 68, 120, 11, accentFill, 3));
+      e.push(R(62, 88, 76, 2, fg25, 2), R(72, 94, 56, 2, fg25, 2));
     } else if (title.includes("Multi-step")) {
-      els.push(box(30, 15, 140, 15, "#fff", 4));
-      els.push(box(35, 18, 40, 9, C.p, 2), box(80, 18, 40, 9, C.s, 2), box(125, 18, 40, 9, C.s, 2));
-      els.push(box(50, 40, 100, 65, "#fff", 6), box(65, 50, 70, 10, C.l), box(65, 65, 70, 10, C.l));
-      els.push(box(65, 85, 30, 12, C.s, 2), box(105, 85, 30, 12, C.p, 2));
+      e.push(R(40, 20, 40, 3, accentFill, 2));
+      e.push(R(82, 20, 40, 3, fg15, 2));
+      e.push(R(124, 20, 36, 3, fg15, 2));
+      e.push(R(70, 36, 60, 3, fg40, 2));
+      e.push(R(50, 48, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 62, 100, 9, "none", 4, 1, fg30));
+      e.push(R(50, 78, 46, 9, fg10, 3));
+      e.push(R(104, 78, 46, 9, accentFill, 3));
     }
   } else if (cat === "Pricing") {
     if (title.includes("3-tier") || title.includes("Classic")) {
-      els.push(box(10, 20, 55, 85, "#fff"), box(72, 15, 56, 90, "#fff", 4, 1.5), box(135, 20, 55, 85, "#fff"));
-      els.push(bar(20, 30, 35, 6, C.s), box(20, 42, 35, 10, C.p, 2), bar(20, 58, 35), bar(20, 65, 35), bar(20, 72, 35), box(20, 85, 35, 12, C.p, 4));
-      els.push(bar(82, 25, 36, 6, C.s), box(82, 37, 36, 10, C.p, 2), bar(82, 53, 36), bar(82, 60, 36), bar(82, 67, 36), box(82, 80, 36, 12, C.p, 4));
-      els.push(bar(145, 30, 35, 6, C.s), box(145, 42, 35, 10, C.p, 2), bar(145, 58, 35), bar(145, 65, 35), bar(145, 72, 35), box(145, 85, 35, 12, C.p, 4));
+      e.push(R(8, 12, 56, 96, fg5, 4));
+      e.push(R(72, 8, 56, 104, "none", 4, 1.5, accent));
+      e.push(R(136, 12, 56, 96, fg5, 4));
+      e.push(R(16, 24, 40, 3, fg40, 2), R(16, 34, 40, 8, accentFill, 3));
+      e.push(R(16, 48, 40, 2, fg25, 1), R(16, 54, 40, 2, fg25, 1), R(16, 60, 40, 2, fg25, 1));
+      e.push(R(16, 72, 40, 10, accentFill, 3));
+      e.push(R(80, 20, 40, 3, fg40, 2), R(80, 30, 40, 8, accentFill, 3));
+      e.push(R(80, 44, 40, 2, fg25, 1), R(80, 50, 40, 2, fg25, 1), R(80, 56, 40, 2, fg25, 1));
+      e.push(R(80, 68, 40, 10, accentFill, 3));
+      e.push(R(144, 24, 40, 3, fg40, 2), R(144, 34, 40, 8, accentFill, 3));
+      e.push(R(144, 48, 40, 2, fg25, 1), R(144, 54, 40, 2, fg25, 1), R(144, 60, 40, 2, fg25, 1));
+      e.push(R(144, 72, 40, 10, accentFill, 3));
     } else if (title.includes("Monthly") || title.includes("toggle")) {
-      els.push(box(60, 15, 80, 20, "#fff", 10), cir(80, 25, 8, C.p), cir(120, 25, 8, C.s));
-      els.push(box(30, 45, 60, 60, "#fff"), box(110, 45, 60, 60, "#fff"));
-      els.push(bar(45, 58, 30, 6, C.s), box(45, 70, 30, 10, C.p, 2), bar(125, 58, 30, 6, C.s), box(125, 70, 30, 10, C.p, 2));
+      e.push(R(60, 15, 80, 16, "none", 10, 1, fg30));
+      e.push(C(80, 23, 6, accentFill), C(120, 23, 6, fg15));
+      e.push(R(140, 18, 20, 10, fg10, 4));
+      e.push(R(20, 45, 72, 60, fg5, 4));
+      e.push(R(108, 45, 72, 60, fg5, 4));
+      e.push(R(32, 58, 48, 3, fg25, 1), R(32, 66, 48, 6, accentFill, 2));
+      e.push(R(120, 58, 48, 3, fg25, 1), R(120, 66, 48, 6, accentFill, 2));
     } else if (title.includes("Comparison")) {
-      els.push(box(10, 10, 180, 100, "#fff"), line(70, 10, 70, 110), line(130, 10, 130, 110), line(10, 40, 190, 40));
-      els.push(bar(15, 15, 50, 10, C.s), box(75, 15, 50, 10, C.p, 2), box(135, 15, 50, 10, C.p, 2));
-      els.push(bar(15, 50, 50, 5, C.s), cir(90, 52, 3, C.p), cir(150, 52, 3, C.s));
-      els.push(bar(15, 65, 50, 5, C.s), cir(90, 67, 3, C.p), cir(150, 67, 3, C.p));
-      els.push(bar(15, 80, 50, 5, C.s), cir(90, 82, 3, C.s), cir(150, 82, 3, C.p));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(L(68, 8, 68, 112, fg15), L(132, 8, 132, 112, fg15), L(8, 38, 192, 38, fg15));
+      e.push(R(14, 14, 50, 6, fg25, 2), R(76, 14, 50, 6, accentFill, 2), R(138, 14, 50, 6, accentFill, 2));
+      e.push(R(14, 48, 50, 3, fg15, 1), C(92, 50, 3, accentFill), C(154, 50, 3, fg15));
+      e.push(R(14, 60, 50, 3, fg15, 1), C(92, 62, 3, accentFill), C(154, 62, 3, accentFill));
+      e.push(R(14, 72, 50, 3, fg15, 1), C(92, 74, 3, fg15), C(154, 74, 3, accentFill));
     } else if (title.includes("Single-tier") || title.includes("hero")) {
-      els.push(box(40, 15, 120, 90, "#fff", 6, 1.5), bar(60, 25, 80, 8, C.s), box(60, 90, 80, 12, C.p, 4));
-      els.push(bar(60, 60, 80), bar(60, 68, 80), bar(60, 76, 80));
+      e.push(R(40, 12, 120, 96, "none", 6, 1.5, accent));
+      e.push(R(60, 24, 80, 4, fg40, 2));
+      e.push(R(60, 36, 80, 8, accentFill, 3));
+      e.push(R(60, 52, 80, 2, fg25, 1), R(60, 58, 80, 2, fg25, 1), R(60, 64, 80, 2, fg25, 1));
+      e.push(R(60, 76, 80, 12, accentFill, 4));
     } else if (title.includes("slider") || title.includes("Usage")) {
-      els.push(box(30, 20, 140, 30, "#fff"), line(45, 35, 155, 35), cir(100, 35, 6, C.p));
-      els.push(box(60, 95, 80, 12, C.p, 4));
+      e.push(R(30, 20, 140, 24, fg5, 4));
+      e.push(L(45, 32, 155, 32, fg25, 2), C(100, 32, 5, accentFill));
+      e.push(R(70, 60, 60, 6, accentFill, 3));
+      e.push(R(60, 80, 80, 12, accentFill, 4));
     } else if (title.includes("Credit")) {
-      els.push(box(10, 20, 55, 45, "#fff"), box(72, 20, 56, 45, "#fff", 4, 1.5), box(135, 20, 55, 45, "#fff"));
-      els.push(box(72, 15, 30, 10, C.p, 2));
-      els.push(box(30, 75, 140, 30, "#fff"), bar(40, 82, 120), bar(40, 89, 80), bar(40, 96, 100));
+      e.push(R(8, 16, 56, 48, fg5, 4));
+      e.push(R(72, 16, 56, 48, "none", 4, 1.5, accent));
+      e.push(R(136, 16, 56, 48, fg5, 4));
+      e.push(R(72, 10, 28, 8, accentFill, 3));
+      e.push(R(28, 76, 144, 28, fg5, 4));
+      e.push(R(38, 84, 124, 2, fg15, 1), R(38, 90, 84, 2, fg15, 1), R(38, 96, 104, 2, fg15, 1));
     } else if (title.includes("Free vs Pro")) {
-      els.push(box(10, 20, 85, 80, "#fff"), box(105, 20, 85, 80, C.l, 4, 1.5));
-      els.push(box(30, 75, 45, 12, C.s, 4), box(125, 75, 45, 12, C.p, 4));
+      e.push(R(8, 16, 88, 88, fg5, 4));
+      e.push(R(104, 16, 88, 88, "none", 4, 1.5, accent));
+      e.push(R(104, 16, 88, 88, fg5, 4));
+      e.push(R(28, 72, 48, 12, fg15, 4), R(124, 72, 48, 12, accentFill, 4));
     } else if (title.includes("Stacked")) {
-      els.push(box(30, 10, 140, 25, "#fff"), box(30, 40, 140, 25, "#fff", 4, 1.5), box(30, 70, 140, 25, "#fff"));
-      els.push(bar(40, 16, 40, 6, C.s), bar(40, 46, 40, 6, C.s), bar(40, 76, 40, 6, C.s));
-      els.push(box(140, 16, 20, 12, C.p, 4), box(140, 46, 20, 12, C.p, 4), box(140, 76, 20, 12, C.p, 4));
+      e.push(R(28, 8, 144, 28, fg5, 4));
+      e.push(R(28, 42, 144, 28, "none", 4, 1.5, accent));
+      e.push(R(28, 76, 144, 28, fg5, 4));
+      e.push(R(38, 16, 40, 4, fg25, 1), R(38, 50, 40, 4, fg25, 1), R(38, 84, 40, 4, fg25, 1));
+      e.push(R(140, 16, 22, 10, accentFill, 4), R(140, 50, 22, 10, accentFill, 4), R(140, 84, 22, 10, accentFill, 4));
     }
   } else if (cat === "Features / Bento") {
     if (title.includes("3-column") || title.includes("icon grid")) {
-      els.push(box(10, 20, 55, 80, "#fff"), box(72, 20, 56, 80, "#fff"), box(135, 20, 55, 80, "#fff"));
-      els.push(cir(37, 40, 8, C.p, 0.3), cir(100, 40, 8, C.p, 0.3), cir(162, 40, 8, C.p, 0.3));
-      els.push(bar(25, 55, 25, 4, C.s), bar(87, 55, 25, 4, C.s), bar(150, 55, 25, 4, C.s));
-      els.push(bar(20, 65, 35), bar(20, 72, 35), bar(82, 65, 35), bar(82, 72, 35), bar(145, 65, 35), bar(145, 72, 35));
+      e.push(R(8, 14, 56, 92, fg5, 4), R(72, 14, 56, 92, fg5, 4), R(136, 14, 56, 92, fg5, 4));
+      e.push(C(36, 36, 8, fg15), C(100, 36, 8, fg15), C(164, 36, 8, fg15));
+      e.push(R(22, 52, 28, 3, fg25, 1), R(86, 52, 28, 3, fg25, 1), R(150, 52, 28, 3, fg25, 1));
+      e.push(R(18, 62, 36, 2, fg15, 1), R(18, 68, 36, 2, fg15, 1));
+      e.push(R(82, 62, 36, 2, fg15, 1), R(82, 68, 36, 2, fg15, 1));
+      e.push(R(146, 62, 36, 2, fg15, 1), R(146, 68, 36, 2, fg15, 1));
     } else if (title.includes("Bento")) {
-      els.push(box(10, 10, 90, 50, "#fff"), box(105, 10, 85, 50, "#fff"), box(10, 65, 55, 45, "#fff"), box(72, 65, 56, 45, "#fff", 4, 1.5), box(135, 65, 55, 45, "#fff"));
-      els.push(cir(55, 35, 12, C.p, 0.2), cir(147, 35, 12, C.p, 0.2));
+      e.push(R(8, 8, 92, 52, fg5, 4), R(108, 8, 84, 52, fg5, 4));
+      e.push(R(8, 68, 56, 44, fg5, 4), R(72, 68, 56, 44, "none", 4, 1.5, accent));
+      e.push(R(136, 68, 56, 44, fg5, 4));
+      e.push(C(54, 34, 14, fg10), C(150, 34, 14, fg10));
     } else if (title.includes("Alternating")) {
-      els.push(box(10, 10, 85, 30, "#fff"), box(105, 10, 85, 30, C.s, 4, 0));
-      els.push(box(10, 45, 85, 30, C.s, 4, 0), box(105, 45, 85, 30, "#fff"));
-      els.push(box(10, 80, 85, 30, "#fff"), box(105, 80, 85, 30, C.s, 4, 0));
-      els.push(bar(20, 20, 65, 4, C.s), bar(115, 55, 65, 4, C.s), bar(20, 90, 65, 4, C.s));
+      e.push(R(8, 8, 88, 32, fg5, 4));
+      e.push(R(104, 8, 88, 32, fg10, 4));
+      e.push(R(8, 46, 88, 32, fg10, 4));
+      e.push(R(104, 46, 88, 32, fg5, 4));
+      e.push(R(8, 84, 88, 28, fg5, 4));
+      e.push(R(104, 84, 88, 28, fg10, 4));
+      e.push(R(18, 18, 68, 3, fg25, 1), R(114, 56, 68, 3, fg25, 1), R(18, 94, 68, 3, fg25, 1));
     } else if (title.includes("Tabbed")) {
-      els.push(box(10, 10, 180, 100, "#fff"));
-      els.push(box(20, 20, 40, 12, C.p, 2), box(65, 20, 40, 12, C.s, 2), box(110, 20, 40, 12, C.s, 2));
-      els.push(line(20, 36, 180, 36));
-      els.push(box(20, 45, 80, 50, C.s, 4, 0));
-      els.push(bar(110, 45, 70, 8, C.s), bar(110, 58, 70), bar(110, 65, 70), bar(110, 72, 70), box(110, 82, 50, 10, C.p, 4));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(R(18, 18, 36, 10, accentFill, 3));
+      e.push(R(60, 18, 36, 10, fg15, 3));
+      e.push(R(102, 18, 36, 10, fg15, 3));
+      e.push(L(18, 34, 182, 34, fg15));
+      e.push(R(18, 42, 84, 56, fg10, 4));
+      e.push(R(110, 42, 72, 6, fg25, 2));
+      e.push(R(110, 54, 72, 2, fg15, 1), R(110, 60, 72, 2, fg15, 1));
+      e.push(R(110, 72, 50, 10, accentFill, 4));
     } else if (title.includes("Accordion")) {
-      els.push(box(30, 10, 140, 20, "#fff"), bar(40, 16, 100, 4, C.s));
-      els.push(box(30, 35, 140, 50, "#fff", 4, 1.5), bar(40, 41, 100, 4, C.s), bar(40, 55, 120), bar(40, 62, 120), bar(40, 69, 80));
-      els.push(box(30, 90, 140, 20, "#fff"), bar(40, 96, 100, 4, C.s));
+      e.push(R(28, 8, 144, 22, fg5, 4));
+      e.push(R(38, 15, 124, 3, fg25, 1));
+      e.push(R(28, 36, 144, 48, "none", 4, 1.5, accent));
+      e.push(R(38, 43, 124, 3, fg25, 1));
+      e.push(R(38, 54, 124, 2, fg15, 1), R(38, 60, 124, 2, fg15, 1), R(38, 66, 84, 2, fg15, 1));
+      e.push(R(28, 90, 144, 22, fg5, 4));
+      e.push(R(38, 97, 124, 3, fg25, 1));
     } else if (title.includes("Scroll-triggered")) {
-      els.push(box(10, 10, 80, 100, C.s, 4, 0), box(100, 10, 90, 100, "#fff"));
-      els.push(bar(110, 20, 70, 8, C.s), bar(110, 35, 70), bar(110, 42, 70), box(110, 55, 70, 8, C.p, 2));
-      els.push(cir(50, 60, 15, C.p, 0.2));
+      e.push(R(8, 8, 84, 104, fg10, 4));
+      e.push(C(50, 60, 18, fg15));
+      e.push(R(100, 8, 92, 104, fg5, 4));
+      e.push(R(110, 18, 72, 5, fg25, 2));
+      e.push(R(110, 30, 72, 2, fg15, 1), R(110, 36, 72, 2, fg15, 1));
+      e.push(R(110, 46, 72, 5, accentFill, 2));
+      e.push(R(110, 58, 72, 2, fg15, 1), R(110, 64, 72, 2, fg15, 1));
+      e.push(R(110, 74, 72, 5, fg25, 2));
     } else if (title.includes("Icon wall")) {
       for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
-        els.push(box(15 + c * 38, 10 + r * 22, 30, 18, "#fff", 3, 0.5));
-        els.push(cir(30 + c * 38, 19 + r * 22, 4, C.p, 0.3));
+        e.push(R(12 + c * 38, 8 + r * 22, 30, 16, fg5, 3));
+        e.push(C(27 + c * 38, 16 + r * 22, 4, fg15));
       }
     } else if (title.includes("Before/after")) {
-      els.push(box(10, 15, 85, 90, "#fff"), box(105, 15, 85, 90, "#fff", 4, 1.5));
-      els.push(bar(20, 45, 65, 4, C.s), bar(20, 55, 45, 4, C.s), bar(20, 65, 55, 4, C.s));
-      els.push(bar(115, 45, 65, 4, C.p), bar(115, 55, 65, 4, C.p), bar(115, 65, 65, 4, C.p), bar(115, 75, 45, 4, C.p));
-      els.push(cir(147, 90, 8, C.p, 0.3));
+      e.push(R(8, 12, 88, 96, fg5, 4));
+      e.push(R(104, 12, 88, 96, "none", 4, 1.5, accent));
+      e.push(R(104, 12, 88, 96, fg5, 4));
+      e.push(R(18, 44, 68, 3, fg25, 1), R(18, 52, 48, 3, fg25, 1), R(18, 60, 58, 3, fg25, 1));
+      e.push(R(114, 44, 68, 3, accentFill, 1), R(114, 52, 68, 3, accentFill, 1));
+      e.push(R(114, 60, 68, 3, accentFill, 1), R(114, 68, 48, 3, accentFill, 1));
+      e.push(C(148, 88, 8, fg15));
     }
   } else if (cat === "Hero Sections") {
     if (title.includes("Centered text") || title.includes("screenshot")) {
-      els.push(bar(40, 10, 120, 10, C.s), bar(60, 25, 80, 6, C.s), bar(70, 35, 60, 4, C.s), box(80, 45, 40, 12, C.p, 4));
-      els.push(box(30, 65, 140, 45, C.s, 4, 0));
-      els.push(box(50, 75, 100, 25, "#fff"));
+      e.push(R(40, 8, 120, 6, fg40, 2));
+      e.push(R(60, 20, 80, 4, fg25, 1));
+      e.push(R(70, 30, 60, 10, accentFill, 4));
+      e.push(R(28, 52, 144, 56, fg10, 4));
+      e.push(R(48, 62, 104, 36, fg5, 4));
     } else if (title.includes("Split")) {
-      els.push(box(10, 15, 90, 90, "#fff"), bar(20, 30, 70, 8, C.s), bar(20, 45, 70, 4, C.s), bar(20, 55, 50, 4, C.s), box(20, 70, 50, 12, C.p, 4));
-      els.push(box(100, 15, 90, 90, C.s, 4, 0), cir(145, 60, 20, C.p, 0.2));
+      e.push(R(8, 12, 92, 96, fg5, 4));
+      e.push(R(18, 28, 72, 4, fg25, 1));
+      e.push(R(18, 38, 72, 2, fg15, 1), R(18, 44, 52, 2, fg15, 1));
+      e.push(R(18, 56, 52, 10, accentFill, 4));
+      e.push(R(108, 12, 84, 96, fg10, 4));
+      e.push(C(150, 60, 20, fg15));
     } else if (title.includes("Video")) {
-      els.push(box(30, 15, 140, 80, "#fff", 6));
-      els.push(<polygon key="play" points="95,40 95,70 120,55" fill={C.p} />);
-      els.push(box(70, 100, 60, 12, C.p, 4));
+      e.push(R(30, 14, 140, 84, fg5, 6));
+      e.push(Pg("95,40 95,72 122,56", accentFill));
+      e.push(R(68, 104, 64, 10, accentFill, 4));
     } else if (title.includes("gradient") || title.includes("mesh")) {
-      els.push(<defs key="defs"><linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.5 : 0.3} /><stop offset="100%" stopColor={accent} stopOpacity={isDark ? 0.7 : 0.5} /></linearGradient></defs>);
-      els.push(<rect key="bg" width="200" height="120" fill="url(#hg1)" rx="4" />);
-      els.push(bar(40, 30, 120, 10, cardBg), bar(60, 45, 80, 6, cardBg), bar(70, 55, 60, 4, cardBg), box(80, 70, 40, 12, C.p, 4));
+      e.push(<defs key="d"><linearGradient id={`${cat}-g1`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={accent} stopOpacity={0.25} /><stop offset="100%" stopColor="#f59e0b" stopOpacity={0.4} /></linearGradient></defs>);
+      e.push(<rect key="bg" x="0.5" y="0.5" width="199" height="119" rx="6" fill={`url(#${cat}-g1)`} />);
+      e.push(R(40, 28, 120, 6, "#fff", 2));
+      e.push(R(60, 40, 80, 4, "#fff", 1));
+      e.push(R(70, 52, 60, 10, accentFill, 4));
     } else if (title.includes("Terminal") || title.includes("code")) {
-      els.push(box(30, 15, 140, 80, "#1e293b", 6, 0));
-      els.push(cir(42, 25, 3, "#ef4444"), cir(52, 25, 3, "#eab308"), cir(62, 25, 3, "#22c55e"));
-      els.push(bar(40, 38, 80, 4, C.p), bar(40, 48, 60, 4, C.s), bar(40, 58, 100, 4, C.p), bar(40, 68, 40, 4, C.s), bar(40, 78, 70, 4, C.p));
-      els.push(box(70, 100, 60, 12, C.p, 4));
+      e.push(R(28, 12, 144, 88, "#1e293b", 6));
+      e.push(C(40, 22, 3, "#ef4444"), C(50, 22, 3, "#eab308"), C(60, 22, 3, "#22c55e"));
+      e.push(R(38, 36, 80, 3, accent, 1), R(38, 44, 60, 3, fg25, 1));
+      e.push(R(38, 52, 100, 3, accent, 1), R(38, 60, 40, 3, fg25, 1));
+      e.push(R(38, 68, 70, 3, accent, 1));
+      e.push(R(68, 106, 64, 8, accentFill, 4));
     } else if (title.includes("Floating")) {
-      els.push(bar(60, 25, 80, 10, C.s), bar(80, 40, 40, 6, C.s), box(90, 55, 20, 10, C.p, 4));
-      els.push(box(20, 20, 50, 35, "#fff"), box(130, 20, 50, 35, "#fff"), box(30, 70, 50, 35, "#fff"), box(120, 70, 50, 35, "#fff"));
+      e.push(R(60, 24, 80, 6, fg25, 2));
+      e.push(R(80, 36, 40, 4, fg25, 1));
+      e.push(R(88, 48, 24, 8, accentFill, 4));
+      e.push(R(18, 18, 52, 38, fg5, 4), R(130, 18, 52, 38, fg5, 4));
+      e.push(R(28, 68, 52, 38, fg5, 4), R(120, 68, 52, 38, fg5, 4));
     } else if (title.includes("Big bold") || title.includes("typography")) {
-      els.push(box(75, 85, 50, 12, C.p, 4));
+      e.push(R(72, 88, 56, 12, accentFill, 4));
     } else if (title.includes("inline form") || title.includes("Hero with")) {
-      els.push(bar(30, 20, 140, 10, C.s), bar(50, 35, 100, 6, C.s), box(30, 55, 100, 16, "#fff"), box(135, 55, 35, 16, C.p, 4));
+      e.push(R(30, 18, 140, 6, fg40, 2));
+      e.push(R(50, 30, 100, 4, fg25, 1));
+      e.push(R(30, 48, 104, 14, "none", 4, 1, fg30));
+      e.push(R(138, 48, 32, 14, accentFill, 4));
     }
   } else if (cat === "CTA Banners") {
     if (title.includes("Full-bleed") || title.includes("gradient banner")) {
-      els.push(<defs key="defs"><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.8 : 0.7} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.9 : 0.85} /></linearGradient></defs>);
-      els.push(<rect key="bg" width="200" height="120" fill="url(#cg1)" rx="4" />);
-      els.push(box(75, 70, 50, 16, cardBg, 4));
+      e.push(<defs key="d"><linearGradient id={`${cat}-g1`} x1="0%" y1="0%" x2="100%"><stop offset="0%" stopColor={accent} stopOpacity={0.7} /><stop offset="100%" stopColor="#f59e0b" stopOpacity={0.85} /></linearGradient></defs>);
+      e.push(<rect key="bg" x="0.5" y="0.5" width="199" height="119" rx="6" fill={`url(#${cat}-g1)`} />);
+      e.push(R(72, 68, 56, 16, "#fff", 4));
     } else if (title.includes("Split CTA")) {
-      els.push(box(20, 25, 160, 70, "#fff", 6), bar(35, 40, 80, 8, C.s), bar(35, 55, 80, 4, C.s), bar(35, 65, 60, 4, C.s));
-      els.push(box(140, 50, 30, 30, C.p, 4));
+      e.push(R(18, 22, 164, 76, fg5, 6));
+      e.push(R(32, 38, 80, 5, fg25, 2));
+      e.push(R(32, 50, 80, 2, fg15, 1), R(32, 56, 60, 2, fg15, 1));
+      e.push(R(140, 46, 28, 28, accentFill, 4));
     } else if (title.includes("Sticky bottom")) {
-      els.push(box(10, 80, 180, 30, "#fff", 6, 1.5), bar(20, 88, 80, 6, C.s), bar(20, 98, 60, 4, C.s), box(140, 88, 30, 14, C.p, 4));
+      e.push(R(8, 80, 184, 32, fg5, 6, 1.5, accent));
+      e.push(R(18, 88, 80, 4, fg25, 1));
+      e.push(R(18, 96, 60, 2, fg15, 1));
+      e.push(R(140, 88, 28, 12, accentFill, 4));
     } else if (title.includes("Patterned")) {
-      for (let i = 0; i < 20; i++) els.push(cir(20 + (i % 10) * 18, 20 + Math.floor(i / 10) * 50, 2, C.p, 0.1));
-      els.push(box(75, 70, 50, 14, C.p, 4));
+      for (let i = 0; i < 20; i++) e.push(C(18 + (i % 10) * 18, 18 + Math.floor(i / 10) * 48, 2, fg10));
+      e.push(R(72, 68, 56, 14, accentFill, 4));
     } else if (title.includes("Dual-CTA")) {
-      els.push(box(50, 65, 45, 14, C.p, 4), box(105, 65, 45, 14, "#fff", 4));
+      e.push(R(48, 64, 48, 14, accentFill, 4));
+      e.push(R(104, 64, 48, 14, "none", 4, 1, accent));
     } else if (title.includes("Inline email")) {
-      els.push(bar(30, 30, 140, 10, C.s), bar(50, 45, 100, 6, C.s), box(40, 60, 90, 16, "#fff"), box(135, 60, 35, 16, C.p, 4));
+      e.push(R(28, 28, 144, 6, fg40, 2));
+      e.push(R(48, 40, 100, 4, fg25, 1));
+      e.push(R(38, 58, 94, 14, "none", 4, 1, fg30));
+      e.push(R(136, 58, 36, 14, accentFill, 4));
     } else if (title.includes("Testimonial") || title.includes("combo")) {
-      els.push(box(75, 80, 50, 14, C.p, 4));
+      e.push(R(72, 76, 56, 14, accentFill, 4));
     }
   } else if (cat === "Stats Bars") {
     if (title.includes("4-column") || title.includes("Horizontal")) {
-      els.push(bar(15, 35, 30, 6, C.s), bar(65, 35, 30, 6, C.s), bar(115, 35, 30, 6, C.s), bar(165, 35, 30, 6, C.s));
-      els.push(box(15, 50, 30, 18, C.p, 2), box(65, 50, 30, 18, C.p, 2), box(115, 50, 30, 18, C.p, 2), box(165, 50, 30, 18, C.p, 2));
-      els.push(bar(15, 75, 30, 4, C.s), bar(65, 75, 30, 4, C.s), bar(115, 75, 30, 4, C.s), bar(165, 75, 30, 4, C.s));
+      e.push(R(14, 32, 32, 6, fg25, 2), R(62, 32, 32, 6, fg25, 2));
+      e.push(R(110, 32, 32, 6, fg25, 2), R(158, 32, 32, 6, fg25, 2));
+      e.push(R(14, 46, 32, 18, accentFill, 3));
+      e.push(R(62, 46, 32, 18, accentFill, 3));
+      e.push(R(110, 46, 32, 18, accentFill, 3));
+      e.push(R(158, 46, 32, 18, accentFill, 3));
+      e.push(R(14, 72, 32, 3, fg15, 1), R(62, 72, 32, 3, fg15, 1));
+      e.push(R(110, 72, 32, 3, fg15, 1), R(158, 72, 32, 3, fg15, 1));
     } else if (title.includes("Animated") || title.includes("count-up")) {
-      els.push(box(20, 25, 70, 40, "#fff"), box(110, 25, 70, 40, "#fff"));
-      els.push(bar(30, 80, 140, 4, C.s), bar(30, 80, 100, 4, C.p));
+      e.push(R(18, 24, 72, 44, fg5, 4));
+      e.push(R(110, 24, 72, 44, fg5, 4));
+      e.push(R(28, 80, 144, 3, fg15, 1), R(28, 80, 100, 3, accentFill, 1));
     } else if (title.includes("Icon + stat")) {
-      els.push(cir(30, 40, 10, C.p, 0.3), cir(130, 40, 10, C.p, 0.3), cir(80, 85, 10, C.p, 0.3));
-      els.push(bar(55, 35, 30, 6, C.p), bar(155, 35, 30, 6, C.p), bar(105, 80, 30, 6, C.p));
-      els.push(bar(55, 45, 30, 4, C.s), bar(155, 45, 30, 4, C.s), bar(105, 90, 30, 4, C.s));
+      e.push(C(28, 38, 10, fg15), C(128, 38, 10, fg15), C(78, 82, 10, fg15));
+      e.push(R(52, 32, 32, 5, accentFill, 2), R(152, 32, 32, 5, accentFill, 2), R(102, 76, 32, 5, accentFill, 2));
+      e.push(R(52, 42, 32, 3, fg15, 1), R(152, 42, 32, 3, fg15, 1), R(102, 86, 32, 3, fg15, 1));
     } else if (title.includes("Logo bar") || title.includes("combo")) {
-      els.push(box(20, 15, 160, 25, "#fff"), bar(30, 22, 30, 10, C.s), bar(70, 22, 30, 10, C.s), bar(110, 22, 30, 10, C.s), bar(150, 22, 20, 10, C.s));
-      els.push(box(20, 55, 70, 40, "#fff"), box(110, 55, 70, 40, "#fff"));
+      e.push(R(18, 12, 164, 28, fg5, 4));
+      e.push(R(28, 20, 28, 10, fg15, 2), R(64, 20, 28, 10, fg15, 2));
+      e.push(R(100, 20, 28, 10, fg15, 2), R(136, 20, 28, 10, fg15, 2));
+      e.push(R(18, 52, 72, 48, fg5, 4));
+      e.push(R(110, 52, 72, 48, fg5, 4));
     } else if (title.includes("Vertical")) {
-      els.push(box(60, 10, 80, 100, "#fff", 6), line(75, 60, 125, 60));
+      e.push(R(58, 8, 84, 104, fg5, 6));
+      e.push(L(72, 60, 128, 60, fg15));
     } else if (title.includes("full-bleed") || title.includes("image")) {
-      els.push(<defs key="defs"><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.6 : 0.5} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.8 : 0.7} /></linearGradient></defs>);
-      els.push(<rect key="bg" width="200" height="120" fill="url(#sg1)" rx="4" />);
+      e.push(<defs key="d"><linearGradient id={`${cat}-g1`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={accent} stopOpacity={0.5} /><stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} /></linearGradient></defs>);
+      e.push(<rect key="bg" x="0.5" y="0.5" width="199" height="119" rx="6" fill={`url(#${cat}-g1)`} />);
     } else if (title.includes("Card-based")) {
-      els.push(box(10, 25, 55, 70, "#fff"), box(72, 25, 56, 70, "#fff"), box(135, 25, 55, 70, "#fff"));
-      els.push(box(37, 55, 20, 12, C.p, 2), box(100, 55, 20, 12, C.p, 2), box(162, 55, 20, 12, C.p, 2));
+      e.push(R(8, 22, 56, 76, fg5, 4));
+      e.push(R(72, 22, 56, 76, fg5, 4));
+      e.push(R(136, 22, 56, 76, fg5, 4));
+      e.push(R(28, 50, 16, 12, accentFill, 3));
+      e.push(R(92, 50, 16, 12, accentFill, 3));
+      e.push(R(156, 50, 16, 12, accentFill, 3));
     }
   } else if (cat === "Nav Bars") {
     if (title.includes("Minimal") || title.includes("logo + links")) {
-      els.push(box(10, 15, 180, 30, "#fff"), box(20, 25, 30, 10, C.p, 2));
-      els.push(bar(70, 25, 20, 8, C.s), bar(100, 25, 20, 8, C.s), bar(130, 25, 20, 8, C.s), box(160, 22, 25, 14, C.p, 4));
+      e.push(R(8, 14, 184, 28, fg5, 4));
+      e.push(R(18, 22, 28, 10, accentFill, 3));
+      e.push(R(62, 24, 18, 6, fg25, 2), R(88, 24, 18, 6, fg25, 2));
+      e.push(R(114, 24, 18, 6, fg25, 2), R(158, 22, 26, 10, accentFill, 4));
     } else if (title.includes("Centered logo")) {
-      els.push(box(10, 15, 180, 30, "#fff"), bar(20, 25, 20, 8, C.s), bar(50, 25, 20, 8, C.s), box(80, 22, 40, 14, C.p, 2), bar(130, 25, 20, 8, C.s), bar(160, 25, 20, 8, C.s));
+      e.push(R(8, 14, 184, 28, fg5, 4));
+      e.push(R(18, 24, 18, 6, fg25, 2), R(46, 24, 18, 6, fg25, 2));
+      e.push(R(78, 22, 44, 10, accentFill, 3));
+      e.push(R(130, 24, 18, 6, fg25, 2), R(158, 24, 18, 6, fg25, 2));
     } else if (title.includes("Mega menu")) {
-      els.push(box(10, 10, 180, 25, "#fff"), box(20, 18, 25, 8, C.p, 2), bar(60, 18, 20, 8, C.s), bar(90, 18, 20, 8, C.s));
-      els.push(box(10, 38, 180, 70, "#fff", 4, 1.5), bar(20, 48, 50, 8, C.s), bar(20, 62, 40), bar(20, 70, 40), bar(20, 78, 40), bar(80, 48, 50, 8, C.s), bar(80, 62, 40), bar(80, 70, 40));
+      e.push(R(8, 8, 184, 22, fg5, 4));
+      e.push(R(18, 14, 22, 8, accentFill, 2));
+      e.push(R(50, 16, 18, 6, fg25, 2), R(76, 16, 18, 6, fg25, 2));
+      e.push(R(8, 34, 184, 78, "none", 4, 1.5, accent));
+      e.push(R(18, 44, 48, 5, fg25, 2), R(18, 56, 40, 2, fg15, 1), R(18, 62, 40, 2, fg15, 1));
+      e.push(R(76, 44, 48, 5, fg25, 2), R(76, 56, 40, 2, fg15, 1), R(76, 62, 40, 2, fg15, 1));
     } else if (title.includes("Sidebar")) {
-      els.push(box(10, 10, 50, 100, "#fff"), box(18, 20, 35, 8, C.p, 2), bar(18, 35, 35, 6, C.s), bar(18, 47, 35, 6, C.s), bar(18, 59, 35, 6, C.s), bar(18, 71, 35, 6, C.s), cir(27, 95, 5, C.s));
-      els.push(box(65, 10, 125, 100, "#fff"));
+      e.push(R(8, 8, 48, 104, fg5, 4));
+      e.push(R(16, 18, 32, 6, accentFill, 2));
+      e.push(R(16, 30, 32, 4, fg25, 1), R(16, 38, 32, 4, fg25, 1));
+      e.push(R(16, 46, 32, 4, fg25, 1), R(16, 54, 32, 4, fg25, 1));
+      e.push(C(24, 88, 5, fg15));
+      e.push(R(64, 8, 128, 104, fg5, 4));
     } else if (title.includes("Floating pill")) {
-      els.push(box(40, 15, 120, 25, "#fff", 12), box(50, 22, 25, 10, C.p, 2), bar(85, 24, 15, 6, C.s), bar(108, 24, 15, 6, C.s), box(131, 22, 20, 10, C.p, 4));
+      e.push(R(38, 14, 124, 24, "none", 14, 1, fg30));
+      e.push(R(48, 20, 22, 10, accentFill, 3));
+      e.push(R(78, 22, 14, 6, fg25, 2), R(100, 22, 14, 6, fg25, 2));
+      e.push(R(128, 20, 26, 10, accentFill, 4));
     } else if (title.includes("Transparent")) {
-      els.push(<defs key="defs"><linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={C.p} stopOpacity={isDark ? 0.5 : 0.3} /><stop offset="100%" stopColor={C.a} stopOpacity={isDark ? 0.7 : 0.5} /></linearGradient></defs>);
-      els.push(<rect key="bg" width="200" height="120" fill="url(#tg1)" rx="4" />);
-      els.push(box(10, 10, 180, 25, cardBg, 4, 0), bar(20, 17, 25, 10, cardBg), bar(60, 19, 15, 6, cardBg), bar(85, 19, 15, 6, cardBg), box(155, 17, 25, 10, cardBg, 4));
+      e.push(<defs key="d"><linearGradient id={`${cat}-g1`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={accent} stopOpacity={0.3} /><stop offset="100%" stopColor="#f59e0b" stopOpacity={0.5} /></linearGradient></defs>);
+      e.push(<rect key="bg" x="0.5" y="0.5" width="199" height="119" rx="6" fill={`url(#${cat}-g1)`} />);
+      e.push(R(8, 8, 184, 22, "#fff", 4, 0), R(18, 14, 22, 8, "rgba(255,255,255,0.5)", 2));
+      e.push(R(50, 16, 14, 6, "rgba(255,255,255,0.5)", 2), R(72, 16, 14, 6, "rgba(255,255,255,0.5)", 2));
+      e.push(R(152, 14, 28, 8, "rgba(255,255,255,0.5)", 4));
     } else if (title.includes("Command-palette")) {
-      els.push(box(10, 15, 180, 25, "#fff"), box(20, 22, 25, 10, C.p, 2), box(60, 20, 80, 14, C.l, 4), bar(160, 22, 20, 10, C.s));
+      e.push(R(8, 14, 184, 28, fg5, 4));
+      e.push(R(18, 22, 22, 10, accentFill, 2));
+      e.push(R(58, 20, 84, 12, "none", 4, 1, fg30));
+      e.push(R(158, 22, 22, 8, fg15, 2));
     } else if (title.includes("Bottom mobile")) {
-      els.push(box(10, 80, 180, 30, "#fff"));
-      els.push(cir(40, 92, 6, C.p, 0.3), cir(80, 92, 6, C.s, 0.3), cir(120, 92, 6, C.s, 0.3), cir(160, 92, 6, C.s, 0.3));
-      els.push(bar(30, 103, 20, 4, C.s), bar(70, 103, 20, 4, C.s), bar(110, 103, 20, 4, C.s), bar(150, 103, 20, 4, C.s));
+      e.push(R(8, 80, 184, 32, fg5, 4));
+      e.push(C(38, 92, 6, fg15), C(78, 92, 6, fg15));
+      e.push(C(118, 92, 6, fg15), C(158, 92, 6, fg15));
+      e.push(R(28, 104, 20, 3, fg15, 1), R(68, 104, 20, 3, fg15, 1));
+      e.push(R(108, 104, 20, 3, fg15, 1), R(148, 104, 20, 3, fg15, 1));
     }
   } else if (cat === "Testimonials") {
     if (title.includes("3-column") || title.includes("quote")) {
-      els.push(box(10, 20, 55, 80, "#fff"), box(72, 20, 56, 80, "#fff"), box(135, 20, 55, 80, "#fff"));
-      els.push(cir(37, 40, 8, C.s), cir(100, 40, 8, C.s), cir(162, 40, 8, C.s));
-      els.push(bar(25, 55, 25, 4, C.s), bar(87, 55, 25, 4, C.s), bar(150, 55, 25, 4, C.s));
-      els.push(bar(20, 65, 35), bar(20, 72, 35), bar(20, 79, 35));
-      els.push(bar(82, 65, 35), bar(82, 72, 35), bar(82, 79, 35));
-      els.push(bar(145, 65, 35), bar(145, 72, 35), bar(145, 79, 35));
+      e.push(R(8, 18, 56, 84, fg5, 4));
+      e.push(R(72, 18, 56, 84, fg5, 4));
+      e.push(R(136, 18, 56, 84, fg5, 4));
+      e.push(C(36, 38, 8, fg15), C(100, 38, 8, fg15), C(164, 38, 8, fg15));
+      e.push(R(22, 54, 28, 3, fg25, 1), R(86, 54, 28, 3, fg25, 1), R(150, 54, 28, 3, fg25, 1));
+      e.push(R(18, 64, 36, 2, fg15, 1), R(18, 70, 36, 2, fg15, 1), R(18, 76, 36, 2, fg15, 1));
+      e.push(R(82, 64, 36, 2, fg15, 1), R(82, 70, 36, 2, fg15, 1), R(82, 76, 36, 2, fg15, 1));
+      e.push(R(146, 64, 36, 2, fg15, 1), R(146, 70, 36, 2, fg15, 1), R(146, 76, 36, 2, fg15, 1));
     } else if (title.includes("Marquee")) {
-      els.push(box(10, 30, 80, 60, "#fff"), box(95, 30, 80, 60, "#fff"));
-      els.push(cir(50, 50, 10, C.s), bar(35, 65, 30, 4, C.s), cir(135, 50, 10, C.s), bar(120, 65, 30, 4, C.s));
+      e.push(R(8, 28, 84, 64, fg5, 4));
+      e.push(R(108, 28, 84, 64, fg5, 4));
+      e.push(C(50, 50, 10, fg15), R(35, 66, 30, 3, fg25, 1));
+      e.push(C(150, 50, 10, fg15), R(135, 66, 30, 3, fg25, 1));
     } else if (title.includes("Masonry")) {
-      els.push(box(10, 10, 55, 50, "#fff"), box(72, 10, 56, 70, "#fff"), box(135, 10, 55, 40, "#fff"));
-      els.push(box(10, 65, 55, 45, "#fff"), box(72, 85, 56, 25, "#fff"), box(135, 55, 55, 55, "#fff"));
-      els.push(cir(37, 25, 6, C.s), cir(100, 25, 6, C.s), cir(162, 25, 6, C.s));
+      e.push(R(8, 8, 56, 52, fg5, 4), R(72, 8, 56, 72, fg5, 4), R(136, 8, 56, 40, fg5, 4));
+      e.push(R(8, 68, 56, 44, fg5, 4), R(72, 88, 56, 24, fg5, 4), R(136, 56, 56, 56, fg5, 4));
+      e.push(C(36, 24, 6, fg15), C(100, 24, 6, fg15), C(164, 24, 6, fg15));
     } else if (title.includes("Single featured")) {
-      els.push(box(30, 20, 140, 80, "#fff", 6), bar(50, 45, 100, 4, C.s), bar(50, 53, 100, 4, C.s), bar(50, 61, 80, 4, C.s));
-      els.push(cir(80, 80, 8, C.s), bar(95, 76, 40, 4, C.s), bar(95, 83, 30, 3, C.s));
+      e.push(R(28, 18, 144, 84, fg5, 6));
+      e.push(R(48, 42, 104, 3, fg25, 1), R(48, 50, 104, 3, fg25, 1), R(48, 58, 84, 3, fg25, 1));
+      e.push(C(78, 78, 8, fg15), R(94, 74, 42, 3, fg25, 1), R(94, 80, 32, 2, fg15, 1));
     } else if (title.includes("Video")) {
-      els.push(box(10, 15, 85, 45, "#fff"), box(105, 15, 85, 45, "#fff"), box(10, 65, 85, 45, "#fff"), box(105, 65, 85, 45, "#fff"));
-      els.push(<polygon key="p1" points="45,30 45,48 58,39" fill={C.p} />);
-      els.push(<polygon key="p2" points="140,30 140,48 153,39" fill={C.p} />);
-      els.push(<polygon key="p3" points="45,80 45,98 58,89" fill={C.p} />);
-      els.push(<polygon key="p4" points="140,80 140,98 153,89" fill={C.p} />);
+      e.push(R(8, 12, 88, 48, fg5, 4), R(104, 12, 88, 48, fg5, 4));
+      e.push(R(8, 68, 88, 48, fg5, 4), R(104, 68, 88, 48, fg5, 4));
+      e.push(Pg("42,28 42,48 56,38", accentFill), Pg("138,28 138,48 152,38", accentFill));
+      e.push(Pg("42,84 42,104 56,94", accentFill), Pg("138,84 138,104 152,94", accentFill));
     } else if (title.includes("Tweet")) {
-      els.push(box(10, 10, 85, 50, "#fff"), box(105, 10, 85, 50, "#fff"), box(10, 65, 85, 45, "#fff"), box(105, 65, 85, 45, "#fff"));
-      els.push(cir(25, 22, 6, C.s), bar(35, 18, 30, 4, C.s), bar(35, 25, 20, 3, C.s));
-      els.push(cir(120, 22, 6, C.s), bar(130, 18, 30, 4, C.s), bar(130, 25, 20, 3, C.s));
+      e.push(R(8, 8, 88, 52, fg5, 4), R(104, 8, 88, 52, fg5, 4));
+      e.push(R(8, 68, 88, 44, fg5, 4), R(104, 68, 88, 44, fg5, 4));
+      e.push(C(22, 20, 6, fg15), R(32, 16, 32, 3, fg25, 1), R(32, 22, 22, 2, fg15, 1));
+      e.push(C(118, 20, 6, fg15), R(128, 16, 32, 3, fg25, 1), R(128, 22, 22, 2, fg15, 1));
     } else if (title.includes("Logo cloud")) {
-      els.push(box(20, 40, 40, 20, "#fff"), box(70, 40, 40, 20, "#fff"), box(120, 40, 40, 20, "#fff"));
-      els.push(box(20, 70, 40, 20, "#fff"), box(70, 70, 40, 20, "#fff"), box(120, 70, 40, 20, "#fff"));
+      e.push(R(18, 38, 42, 22, fg5, 4), R(68, 38, 42, 22, fg5, 4), R(118, 38, 42, 22, fg5, 4));
+      e.push(R(18, 68, 42, 22, fg5, 4), R(68, 68, 42, 22, fg5, 4), R(118, 68, 42, 22, fg5, 4));
     } else if (title.includes("Carousel")) {
-      els.push(box(30, 20, 140, 70, "#fff", 6), bar(50, 50, 100, 4, C.s), bar(50, 58, 100, 4, C.s));
-      els.push(cir(80, 75, 6, C.s), bar(90, 72, 40, 4, C.s));
-      els.push(cir(85, 100, 4, C.p), cir(100, 100, 4, C.s), cir(115, 100, 4, C.s));
+      e.push(R(28, 18, 144, 72, fg5, 6));
+      e.push(R(48, 48, 104, 3, fg25, 1), R(48, 56, 104, 3, fg25, 1));
+      e.push(C(78, 72, 6, fg15), R(88, 68, 42, 3, fg25, 1));
+      e.push(C(82, 98, 4, accentFill), C(100, 98, 4, fg15), C(118, 98, 4, fg15));
     }
   } else if (cat === "Footer") {
     if (title.includes("Multi-column") || title.includes("sitemap")) {
-      els.push(box(10, 10, 180, 100, "#fff"), box(20, 20, 30, 10, C.p, 2));
-      els.push(bar(20, 40, 25), bar(20, 48, 25), bar(20, 56, 25));
-      els.push(bar(70, 35, 30, 6, C.s), bar(70, 48, 25), bar(70, 56, 25), bar(70, 64, 25));
-      els.push(bar(120, 35, 30, 6, C.s), bar(120, 48, 25), bar(120, 56, 25), bar(120, 64, 25));
-      els.push(line(20, 90, 180, 90), bar(20, 98, 80));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(R(18, 18, 28, 8, accentFill, 2));
+      e.push(R(18, 36, 22, 3, fg15, 1), R(18, 42, 22, 3, fg15, 1), R(18, 48, 22, 3, fg15, 1));
+      e.push(R(68, 32, 28, 4, fg25, 1), R(68, 42, 22, 3, fg15, 1), R(68, 48, 22, 3, fg15, 1));
+      e.push(R(118, 32, 28, 4, fg25, 1), R(118, 42, 22, 3, fg15, 1), R(118, 48, 22, 3, fg15, 1));
+      e.push(L(18, 88, 182, 88, fg15), R(18, 96, 80, 3, fg15, 1));
     } else if (title.includes("Minimal")) {
-      els.push(box(10, 80, 180, 25, "#fff"), box(20, 88, 25, 8, C.p, 2), bar(55, 90, 20, 4, C.s), bar(80, 90, 20, 4, C.s), bar(105, 90, 20, 4, C.s), bar(145, 88, 35, 8, C.s));
+      e.push(R(8, 80, 184, 28, fg5, 4));
+      e.push(R(18, 88, 22, 8, accentFill, 2));
+      e.push(R(50, 90, 18, 3, fg15, 1), R(74, 90, 18, 3, fg15, 1), R(98, 90, 18, 3, fg15, 1));
+      e.push(R(142, 88, 38, 8, fg15, 2));
     } else if (title.includes("Giant logo")) {
-      els.push(box(75, 85, 50, 12, C.p, 4));
-      els.push(bar(40, 70, 20), bar(70, 70, 20), bar(100, 70, 20), bar(130, 70, 20));
+      e.push(R(72, 82, 56, 12, accentFill, 4));
+      e.push(R(38, 68, 18, 3, fg15, 1), R(62, 68, 18, 3, fg15, 1));
+      e.push(R(86, 68, 18, 3, fg15, 1), R(110, 68, 18, 3, fg15, 1));
     } else if (title.includes("Newsletter")) {
-      els.push(box(10, 10, 180, 100, "#fff"), box(40, 55, 90, 14, C.l, 4), box(135, 55, 30, 14, C.p, 4));
-      els.push(bar(20, 80, 30), bar(20, 88, 30), bar(70, 80, 30), bar(70, 88, 30), bar(120, 80, 30), bar(120, 88, 30));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(R(38, 52, 94, 12, "none", 4, 1, fg30));
+      e.push(R(136, 52, 32, 12, accentFill, 4));
+      e.push(R(18, 78, 28, 3, fg15, 1), R(18, 84, 28, 3, fg15, 1));
+      e.push(R(68, 78, 28, 3, fg15, 1), R(68, 84, 28, 3, fg15, 1));
+      e.push(R(118, 78, 28, 3, fg15, 1), R(118, 84, 28, 3, fg15, 1));
     } else if (title.includes("Status")) {
-      els.push(box(10, 80, 180, 30, "#fff"), cir(25, 92, 4, "#22c55e"));
-      els.push(bar(110, 88, 20), bar(135, 88, 20), bar(160, 88, 20));
+      e.push(R(8, 80, 184, 32, fg5, 4));
+      e.push(C(22, 92, 4, "#22c55e"));
+      e.push(R(108, 88, 18, 3, fg15, 1), R(132, 88, 18, 3, fg15, 1), R(156, 88, 18, 3, fg15, 1));
     }
   } else if (cat === "FAQ") {
     if (title.includes("Accordion single")) {
-      els.push(box(30, 10, 140, 20, "#fff"), bar(40, 16, 100, 4, C.s));
-      els.push(box(30, 35, 140, 50, "#fff", 4, 1.5), bar(40, 41, 100, 4, C.s), bar(40, 55, 120), bar(40, 62, 120), bar(40, 69, 80));
-      els.push(box(30, 90, 140, 20, "#fff"), bar(40, 96, 100, 4, C.s));
+      e.push(R(28, 8, 144, 22, fg5, 4));
+      e.push(R(38, 14, 124, 3, fg25, 1));
+      e.push(R(28, 36, 144, 48, "none", 4, 1.5, accent));
+      e.push(R(38, 43, 124, 3, fg25, 1));
+      e.push(R(38, 54, 124, 2, fg15, 1), R(38, 60, 124, 2, fg15, 1), R(38, 66, 84, 2, fg15, 1));
+      e.push(R(28, 90, 144, 22, fg5, 4));
+      e.push(R(38, 97, 124, 3, fg25, 1));
     } else if (title.includes("Two-column")) {
-      els.push(box(10, 10, 85, 25, "#fff"), box(105, 10, 85, 25, "#fff"), box(10, 40, 85, 25, "#fff", 4, 1.5), box(105, 40, 85, 25, "#fff"), box(10, 70, 85, 25, "#fff"), box(105, 70, 85, 25, "#fff"));
-      els.push(bar(20, 17, 65), bar(115, 17, 65), bar(20, 47, 65), bar(115, 47, 65), bar(20, 77, 65), bar(115, 77, 65));
+      e.push(R(8, 8, 88, 28, fg5, 4), R(104, 8, 88, 28, fg5, 4));
+      e.push(R(8, 42, 88, 28, "none", 4, 1.5, accent), R(104, 42, 88, 28, fg5, 4));
+      e.push(R(8, 76, 88, 28, fg5, 4), R(104, 76, 88, 28, fg5, 4));
+      e.push(R(18, 16, 68, 3, fg25, 1), R(114, 16, 68, 3, fg25, 1));
+      e.push(R(18, 50, 68, 3, fg25, 1), R(114, 50, 68, 3, fg25, 1));
+      e.push(R(18, 84, 68, 3, fg25, 1), R(114, 84, 68, 3, fg25, 1));
     } else if (title.includes("Chat-bubble")) {
-      els.push(box(20, 10, 70, 25, "#fff"), box(110, 10, 70, 25, C.l, 4, 0));
-      els.push(box(20, 45, 70, 25, "#fff"), box(110, 45, 70, 25, C.l, 4, 0));
-      els.push(box(20, 80, 70, 25, "#fff"), box(110, 80, 70, 25, C.l, 4, 0));
-      els.push(bar(30, 18, 50), bar(120, 18, 50), bar(30, 53, 50), bar(120, 53, 50));
+      e.push(R(18, 8, 72, 28, fg5, 4));
+      e.push(R(110, 8, 72, 28, fg10, 4));
+      e.push(R(18, 44, 72, 28, fg5, 4));
+      e.push(R(110, 44, 72, 28, fg10, 4));
+      e.push(R(18, 80, 72, 28, fg5, 4));
+      e.push(R(110, 80, 72, 28, fg10, 4));
+      e.push(R(28, 16, 52, 3, fg25, 1), R(120, 16, 52, 3, fg25, 1));
+      e.push(R(28, 52, 52, 3, fg25, 1), R(120, 52, 52, 3, fg25, 1));
     } else if (title.includes("Searchable")) {
-      els.push(box(40, 10, 120, 18, "#fff"), cir(55, 19, 4, "#fff"), box(40, 35, 120, 15, "#fff"), box(40, 55, 120, 15, "#fff"), box(40, 75, 120, 15, "#fff"));
-      els.push(bar(50, 40, 100), bar(50, 60, 100), bar(50, 80, 100));
+      e.push(R(38, 8, 124, 16, "none", 4, 1, fg30));
+      e.push(C(52, 16, 4, "none"), R(38, 32, 124, 16, fg5, 4), R(38, 54, 124, 16, fg5, 4), R(38, 76, 124, 16, fg5, 4));
+      e.push(R(48, 38, 104, 3, fg15, 1), R(48, 60, 104, 3, fg15, 1), R(48, 82, 104, 3, fg15, 1));
     } else if (title.includes("Categorized")) {
-      els.push(box(20, 10, 40, 14, C.p, 4), box(65, 10, 40, 14, C.s, 4), box(110, 10, 40, 14, C.s, 4));
-      els.push(box(20, 35, 160, 15, "#fff"), box(20, 55, 160, 15, "#fff"), box(20, 75, 160, 15, "#fff"));
-      els.push(bar(30, 40, 140), bar(30, 60, 140), bar(30, 80, 140));
+      e.push(R(18, 8, 42, 12, accentFill, 4));
+      e.push(R(66, 8, 42, 12, fg15, 4));
+      e.push(R(114, 8, 42, 12, fg15, 4));
+      e.push(R(18, 30, 164, 16, fg5, 4), R(18, 52, 164, 16, fg5, 4), R(18, 74, 164, 16, fg5, 4));
+      e.push(R(28, 36, 144, 3, fg15, 1), R(28, 58, 144, 3, fg15, 1), R(28, 80, 144, 3, fg15, 1));
     }
   } else if (cat === "Dashboards") {
     if (title.includes("Sidebar + main")) {
-      els.push(box(10, 10, 50, 100, "#fff"), box(18, 20, 35, 8, C.p, 2), bar(18, 35, 35, 6, C.s), bar(18, 47, 35, 6, C.s), bar(18, 59, 35, 6, C.s));
-      els.push(box(65, 10, 125, 100, "#fff"), bar(75, 20, 40, 8, C.s), box(75, 35, 105, 25, C.l, 4, 0), box(75, 65, 50, 35, C.l, 4, 0), box(130, 65, 50, 35, C.l, 4, 0));
+      e.push(R(8, 8, 48, 104, fg5, 4));
+      e.push(R(16, 18, 32, 6, accentFill, 2));
+      e.push(R(16, 30, 32, 4, fg25, 1), R(16, 38, 32, 4, fg25, 1), R(16, 46, 32, 4, fg25, 1));
+      e.push(R(64, 8, 128, 104, fg5, 4));
+      e.push(R(74, 18, 38, 6, fg25, 2));
+      e.push(R(74, 32, 108, 28, fg10, 4));
+      e.push(R(74, 66, 52, 36, fg10, 4), R(134, 66, 52, 36, fg10, 4));
     } else if (title.includes("Top nav")) {
-      els.push(box(10, 10, 180, 25, "#fff"), box(20, 18, 25, 8, C.p, 2), bar(60, 20, 15, 6, C.s), bar(80, 20, 15, 6, C.s), bar(160, 18, 20, 10, C.s));
-      els.push(box(10, 40, 180, 70, "#fff"), bar(20, 50, 40, 8, C.s), box(20, 65, 70, 35, C.l, 4, 0), box(100, 65, 80, 35, C.l, 4, 0));
+      e.push(R(8, 8, 184, 22, fg5, 4));
+      e.push(R(18, 14, 22, 8, accentFill, 2));
+      e.push(R(58, 16, 14, 6, fg25, 2), R(78, 16, 14, 6, fg25, 2));
+      e.push(R(158, 14, 22, 8, fg15, 2));
+      e.push(R(8, 36, 184, 76, fg5, 4));
+      e.push(R(18, 46, 38, 6, fg25, 2));
+      e.push(R(18, 60, 72, 40, fg10, 4), R(98, 60, 84, 40, fg10, 4));
     } else if (title.includes("Three-pane")) {
-      els.push(box(10, 10, 40, 100, "#fff"), box(55, 10, 60, 100, "#fff"), box(120, 10, 70, 100, "#fff"));
-      els.push(box(18, 20, 25, 8, C.p, 2), bar(18, 35, 25, 6, C.s), bar(18, 47, 25, 6, C.s));
-      els.push(bar(65, 20, 40, 6, C.s), bar(65, 32, 40, 6, C.s), bar(65, 44, 40, 6, C.s));
+      e.push(R(8, 8, 38, 104, fg5, 4));
+      e.push(R(54, 8, 60, 104, fg5, 4));
+      e.push(R(122, 8, 70, 104, fg5, 4));
+      e.push(R(16, 18, 22, 6, accentFill, 2));
+      e.push(R(16, 30, 22, 4, fg25, 1), R(16, 38, 22, 4, fg25, 1));
+      e.push(R(64, 18, 40, 4, fg25, 1), R(64, 28, 40, 4, fg25, 1));
     } else if (title.includes("Kanban")) {
-      els.push(box(10, 10, 55, 100, "#fff"), box(72, 10, 56, 100, "#fff"), box(135, 10, 55, 100, "#fff"));
-      els.push(bar(18, 20, 40, 6, C.s), bar(80, 20, 40, 6, C.s), bar(143, 20, 40, 6, C.s));
-      els.push(box(18, 35, 40, 20, C.l), box(18, 60, 40, 20, C.l), box(80, 35, 40, 20, C.l, 4, 1.5), box(80, 60, 40, 20, C.l));
+      e.push(R(8, 8, 56, 104, fg5, 4));
+      e.push(R(72, 8, 56, 104, fg5, 4));
+      e.push(R(136, 8, 56, 104, fg5, 4));
+      e.push(R(16, 18, 40, 4, fg25, 1), R(80, 18, 40, 4, fg25, 1), R(144, 18, 40, 4, fg25, 1));
+      e.push(R(16, 32, 40, 22, fg10, 4), R(16, 58, 40, 22, fg10, 4));
+      e.push(R(80, 32, 40, 22, "none", 4, 1.5, accent), R(80, 58, 40, 22, fg10, 4));
+      e.push(R(144, 32, 40, 22, fg10, 4));
     } else if (title.includes("Metric cards")) {
-      els.push(box(10, 10, 40, 25, "#fff"), box(55, 10, 40, 25, "#fff"), box(100, 10, 40, 25, "#fff"), box(145, 10, 45, 25, "#fff"));
-      els.push(box(10, 45, 180, 65, "#fff"));
-      els.push(<polyline key="chart" points="20,100 40,80 60,90 80,70 100,75 120,60 140,65 160,50 180,55" fill="none" stroke={C.p} strokeWidth="2" />);
+      e.push(R(8, 8, 42, 28, fg5, 4), R(58, 8, 42, 28, fg5, 4));
+      e.push(R(108, 8, 42, 28, fg5, 4), R(158, 8, 34, 28, fg5, 4));
+      e.push(R(8, 44, 184, 68, fg5, 4));
+      e.push(<polyline key="ch" points="18,102 38,82 58,92 78,72 98,78 118,62 138,68 158,52 178,58" fill="none" stroke={accent} strokeWidth="2" />);
     } else if (title.includes("Empty state")) {
-      els.push(cir(100, 45, 20, C.s, 0.3), box(85, 40, 30, 10, C.s, 2), box(75, 90, 50, 14, C.p, 4));
+      e.push(C(100, 42, 20, fg15));
+      e.push(R(85, 38, 30, 8, fg15, 2));
+      e.push(R(72, 88, 56, 14, accentFill, 4));
     }
   } else if (cat === "Onboarding") {
     if (title.includes("Checklist")) {
-      els.push(box(40, 10, 120, 100, "#fff", 6));
-      els.push(box(50, 40, 10, 10, C.p, 2), bar(65, 42, 70), box(50, 55, 10, 10, C.p, 2), bar(65, 57, 70));
-      els.push(box(50, 70, 10, 10, "#fff", 2), bar(65, 72, 70), box(50, 85, 10, 10, "#fff", 2), bar(65, 87, 70));
+      e.push(R(38, 8, 124, 104, fg5, 6));
+      e.push(R(48, 38, 10, 10, accentFill, 2), R(64, 40, 72, 3, fg15, 1));
+      e.push(R(48, 54, 10, 10, accentFill, 2), R(64, 56, 72, 3, fg15, 1));
+      e.push(R(48, 70, 10, 10, "none", 2, 1, fg30), R(64, 72, 72, 3, fg15, 1));
+      e.push(R(48, 86, 10, 10, "none", 2, 1, fg30), R(64, 88, 72, 3, fg15, 1));
     } else if (title.includes("Tour")) {
-      els.push(box(10, 10, 180, 100, "#fff"), bar(20, 20, 40, 10, C.s), bar(70, 20, 40, 10, C.s), bar(120, 20, 40, 10, C.s));
-      els.push(box(60, 50, 80, 40, C.l, 6, 1.5));
-      els.push(box(80, 80, 40, 8, C.p, 4));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(R(18, 18, 38, 8, fg15, 2), R(64, 18, 38, 8, fg15, 2), R(110, 18, 38, 8, fg15, 2));
+      e.push(R(58, 48, 84, 42, fg10, 6, 1.5, accent));
+      e.push(Pg("100,42 90,48 110,48", accentFill));
+      e.push(R(78, 78, 44, 8, accentFill, 4));
     } else if (title.includes("Video") && cat === "Onboarding") {
-      els.push(box(30, 15, 140, 80, "#fff", 6), box(50, 30, 100, 50, C.s, 4, 0));
-      els.push(<polygon key="vp" points="95,45 95,65 115,55" fill={C.p} />);
-      els.push(box(70, 90, 60, 12, C.p, 4));
+      e.push(R(28, 12, 144, 84, fg5, 6));
+      e.push(R(48, 28, 104, 52, fg10, 4));
+      e.push(Pg("95,44 95,68 118,56", accentFill));
+      e.push(R(68, 102, 64, 10, accentFill, 4));
     } else if (title.includes("Illustrated")) {
-      els.push(cir(100, 40, 25, C.s, 0.3), cir(100, 40, 15, C.p, 0.2), box(75, 100, 50, 12, C.p, 4));
+      e.push(C(100, 38, 25, fg15));
+      e.push(C(100, 38, 14, fg10));
+      e.push(R(72, 100, 56, 12, accentFill, 4));
     }
   } else if (cat === "Blog / Content") {
     if (title.includes("Magazine")) {
-      els.push(box(10, 10, 180, 50, "#fff"), bar(20, 20, 80, 8, C.s), bar(20, 35, 160), bar(20, 42, 160));
-      els.push(box(10, 65, 55, 45, "#fff"), box(72, 65, 56, 45, "#fff"), box(135, 65, 55, 45, "#fff"));
+      e.push(R(8, 8, 184, 52, fg5, 4));
+      e.push(R(18, 18, 82, 5, fg25, 2));
+      e.push(R(18, 30, 164, 2, fg15, 1), R(18, 36, 164, 2, fg15, 1));
+      e.push(R(8, 68, 56, 44, fg5, 4), R(72, 68, 56, 44, fg5, 4), R(136, 68, 56, 44, fg5, 4));
     } else if (title.includes("Single column") || title.includes("reading")) {
-      els.push(box(40, 10, 120, 100, "#fff"), bar(55, 20, 90, 8, C.s));
-      for (let i = 0; i < 7; i++) els.push(bar(55, 35 + i * 9, 90));
+      e.push(R(38, 8, 124, 104, fg5, 4));
+      e.push(R(52, 18, 96, 5, fg25, 2));
+      for (let i = 0; i < 7; i++) e.push(R(52, 32 + i * 10, 96, 2, fg15, 1));
     } else if (title.includes("Sidebar TOC")) {
-      els.push(box(10, 10, 50, 100, "#fff"), box(65, 10, 125, 100, "#fff"));
-      els.push(bar(18, 20, 35, 6, C.p), bar(18, 32, 35, 6, C.s), bar(18, 44, 35, 6, C.s));
-      els.push(bar(75, 20, 105, 8, C.s), bar(75, 35, 105), bar(75, 42, 105), bar(75, 53, 105, 8, C.s));
+      e.push(R(8, 8, 48, 104, fg5, 4));
+      e.push(R(64, 8, 128, 104, fg5, 4));
+      e.push(R(16, 18, 32, 5, accentFill, 2), R(16, 30, 32, 5, fg15, 2), R(16, 42, 32, 5, fg15, 2));
+      e.push(R(74, 18, 108, 5, fg25, 2));
+      e.push(R(74, 32, 108, 2, fg15, 1), R(74, 38, 108, 2, fg15, 1));
+      e.push(R(74, 50, 108, 5, fg25, 2));
     } else if (title.includes("Card grid") || title.includes("filters")) {
-      els.push(box(20, 10, 30, 10, C.p, 4), box(55, 10, 30, 10, C.s, 4), box(90, 10, 30, 10, C.s, 4));
-      els.push(box(10, 28, 55, 40, "#fff"), box(72, 28, 56, 40, "#fff"), box(135, 28, 55, 40, "#fff"));
-      els.push(box(10, 75, 55, 35, "#fff"), box(72, 75, 56, 35, "#fff"), box(135, 75, 55, 35, "#fff"));
+      e.push(R(18, 8, 32, 10, accentFill, 4));
+      e.push(R(56, 8, 32, 10, fg15, 4));
+      e.push(R(94, 8, 32, 10, fg15, 4));
+      e.push(R(8, 26, 56, 42, fg5, 4), R(72, 26, 56, 42, fg5, 4), R(136, 26, 56, 42, fg5, 4));
+      e.push(R(8, 76, 56, 36, fg5, 4), R(72, 76, 56, 36, fg5, 4), R(136, 76, 56, 36, fg5, 4));
     }
   } else if (cat === "Contact") {
     if (title.includes("Split form")) {
-      els.push(box(10, 15, 90, 90, "#fff"), box(105, 15, 85, 90, C.l, 4, 0));
-      els.push(bar(20, 25, 70, 8, C.s), box(20, 40, 70, 10, C.l), box(20, 55, 70, 10, C.l), box(20, 75, 70, 14, C.p, 4));
+      e.push(R(8, 12, 92, 96, fg5, 4));
+      e.push(R(108, 12, 84, 96, fg10, 4));
+      e.push(R(18, 24, 72, 5, fg25, 2));
+      e.push(R(18, 38, 72, 8, "none", 4, 1, fg30));
+      e.push(R(18, 52, 72, 8, "none", 4, 1, fg30));
+      e.push(R(18, 72, 72, 12, accentFill, 4));
     } else if (title.includes("Support channel")) {
-      els.push(box(10, 20, 85, 45, "#fff"), box(105, 20, 85, 45, "#fff"), box(10, 70, 85, 40, "#fff"), box(105, 70, 85, 40, "#fff"));
-      els.push(cir(52, 40, 8, C.p, 0.3), cir(147, 40, 8, C.p, 0.3), cir(52, 85, 8, C.p, 0.3), cir(147, 85, 8, C.p, 0.3));
+      e.push(R(8, 18, 88, 48, fg5, 4), R(104, 18, 88, 48, fg5, 4));
+      e.push(R(8, 74, 88, 42, fg5, 4), R(104, 74, 88, 42, fg5, 4));
+      e.push(C(52, 40, 8, fg15), C(148, 40, 8, fg15));
+      e.push(C(52, 92, 8, fg15), C(148, 92, 8, fg15));
     } else if (title.includes("Full-page") || title.includes("minimal form")) {
-      els.push(box(50, 15, 100, 80, "#fff", 6), bar(70, 25, 60, 8, C.s), box(70, 40, 60, 10, C.l), box(70, 55, 60, 10, C.l), box(70, 75, 60, 14, C.p, 4));
+      e.push(R(48, 12, 104, 96, fg5, 6));
+      e.push(R(68, 22, 64, 5, fg25, 2));
+      e.push(R(68, 38, 64, 8, "none", 4, 1, fg30));
+      e.push(R(68, 52, 64, 8, "none", 4, 1, fg30));
+      e.push(R(68, 72, 64, 12, accentFill, 4));
     }
   } else if (cat === "Bonus") {
     if (title.includes("Comparison table")) {
-      els.push(box(10, 15, 90, 50, "#fff"), box(105, 15, 85, 50, "#fff", 4, 1.5), bar(20, 30, 70, 6, C.s), bar(20, 45, 70));
-      els.push(bar(115, 30, 60, 6, C.p), bar(115, 45, 60));
-      els.push(box(10, 70, 180, 40, "#fff"), bar(20, 80, 160, 4, C.s), bar(20, 90, 160, 4, C.s), bar(20, 100, 160, 4, C.s));
+      e.push(R(8, 12, 92, 52, fg5, 4));
+      e.push(R(108, 12, 84, 52, "none", 4, 1.5, accent));
+      e.push(R(18, 28, 72, 4, fg25, 1), R(18, 42, 72, 2, fg15, 1));
+      e.push(R(118, 28, 64, 4, accentFill, 1), R(118, 42, 64, 2, fg15, 1));
+      e.push(R(8, 72, 184, 40, fg5, 4));
+      e.push(R(18, 82, 164, 2, fg15, 1), R(18, 90, 164, 2, fg15, 1), R(18, 98, 164, 2, fg15, 1));
     } else if (title.includes("Notification")) {
-      els.push(box(10, 10, 180, 25, "#fff"), box(10, 40, 180, 25, C.l, 4, 0), box(10, 70, 180, 25, "#fff"));
-      els.push(cir(25, 52, 5, C.p, 0.5), bar(35, 48, 80, 6, C.s), bar(35, 58, 120, 4, C.s));
+      e.push(R(8, 8, 184, 22, fg5, 4));
+      e.push(R(8, 36, 184, 22, fg10, 4));
+      e.push(R(8, 64, 184, 22, fg5, 4));
+      e.push(C(22, 47, 5, accentFill));
+      e.push(R(32, 43, 82, 4, fg25, 1), R(32, 51, 124, 2, fg15, 1));
     } else if (title.includes("Search results")) {
-      els.push(box(40, 10, 120, 15, "#fff"), box(40, 30, 120, 25, "#fff"), box(40, 60, 120, 25, "#fff"), box(40, 90, 120, 25, "#fff"));
-      els.push(bar(50, 35, 100, 6, C.s), bar(50, 45, 100, 4, C.s));
-      els.push(bar(50, 65, 100, 6, C.s), bar(50, 75, 100, 4, C.s));
+      e.push(R(38, 8, 124, 14, "none", 4, 1, fg30));
+      e.push(R(38, 30, 124, 26, fg5, 4));
+      e.push(R(38, 62, 124, 26, fg5, 4));
+      e.push(R(38, 94, 124, 22, fg5, 4));
+      e.push(R(48, 36, 104, 4, fg25, 1), R(48, 44, 104, 2, fg15, 1));
+      e.push(R(48, 68, 104, 4, fg25, 1), R(48, 76, 104, 2, fg15, 1));
     } else if (title.includes("Settings")) {
-      els.push(box(10, 10, 50, 100, "#fff"), box(65, 10, 125, 100, "#fff"));
-      els.push(bar(18, 20, 35, 6, C.p), bar(18, 32, 35, 6, C.s), bar(18, 44, 35, 6, C.s));
-      els.push(bar(75, 20, 105, 8, C.s), box(75, 35, 105, 20, C.l, 4, 0), bar(75, 62, 105, 8, C.s), box(75, 75, 105, 20, C.l, 4, 0));
+      e.push(R(8, 8, 48, 104, fg5, 4));
+      e.push(R(64, 8, 128, 104, fg5, 4));
+      e.push(R(16, 18, 32, 5, accentFill, 2), R(16, 30, 32, 5, fg15, 2), R(16, 42, 32, 5, fg15, 2));
+      e.push(R(74, 18, 108, 5, fg25, 2));
+      e.push(R(74, 32, 108, 22, fg10, 4));
+      e.push(R(74, 62, 108, 5, fg25, 2));
+      e.push(R(74, 76, 108, 22, fg10, 4));
     } else if (title.includes("Table")) {
-      els.push(box(10, 10, 180, 100, "#fff"), line(10, 35, 190, 35), line(10, 55, 190, 55), line(10, 75, 190, 75), line(10, 95, 190, 95));
-      els.push(line(70, 10, 70, 110), line(130, 10, 130, 110));
-      els.push(bar(15, 17, 50, 6, C.p), bar(75, 17, 50, 6, C.p), bar(135, 17, 50, 6, C.p));
+      e.push(R(8, 8, 184, 104, fg5, 4));
+      e.push(L(8, 34, 192, 34, fg15), L(8, 56, 192, 56, fg15), L(8, 78, 192, 78, fg15));
+      e.push(L(68, 8, 68, 112, fg15), L(132, 8, 132, 112, fg15));
+      e.push(R(14, 14, 50, 5, accentFill, 2), R(76, 14, 50, 5, accentFill, 2), R(140, 14, 50, 5, accentFill, 2));
       for (let r = 0; r < 3; r++) {
-        els.push(bar(15, 42 + r * 20, 45), bar(75, 42 + r * 20, 45), bar(135, 42 + r * 20, 45));
+        e.push(R(14, 42 + r * 22, 48, 3, fg15, 1));
+        e.push(R(76, 42 + r * 22, 48, 3, fg15, 1));
+        e.push(R(140, 42 + r * 22, 48, 3, fg15, 1));
       }
     }
   }
 
-  if (els.length === 0) {
-    els.push(cir(100, 60, 20, C.p, 0.15));
-    els.push(box(70, 50, 60, 20, C.p, 4));
+  if (e.length === 0) {
+    e.push(C(100, 60, 20, fg10));
+    e.push(R(70, 50, 60, 20, accentFill, 4));
   }
 
-  return els;
+  return e;
 }
