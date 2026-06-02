@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CardPreview } from "./CardPreview";
 
 interface PromptCardProps {
   title: string;
@@ -62,9 +63,9 @@ export function PromptCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="mb-4 rounded-lg border border-border/60 bg-secondary p-4">
-        <div className="flex h-24 items-center justify-center">
-          <div className="text-4xl opacity-20">📄</div>
+      <div className="mb-4 rounded-lg border border-border/60 bg-secondary p-2">
+        <div className="flex h-24 items-center justify-center overflow-hidden rounded">
+          <CardPreview category={category} title={title} />
         </div>
       </div>
 
