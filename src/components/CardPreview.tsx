@@ -71,8 +71,10 @@ function render(
       e.push(R(50, 14, 100, 9, "fill-none stroke-foreground/30", 4, 1));
       e.push(R(50, 28, 100, 9, "fill-none stroke-foreground/30", 4, 1));
       e.push(R(50, 42, 100, 9, "fill-none stroke-foreground/30", 4, 1));
-      e.push(L(56, 62, 92, 62, "stroke-foreground/40"), R(96, 60, 8, 4, "fill-foreground/25", 2));
-      e.push(R(50, 72, 100, 9, "fill-none stroke-foreground/30", 4, 1));
+      e.push(L(56, 62, 92, 62, "stroke-foreground/40"), R(96, 60, 8, 4, "fill-foreground/30", 2));
+      e.push(L(108, 62, 144, 62, "stroke-foreground/40"));
+      e.push(R(50, 70, 100, 9, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(50, 84, 100, 9, "fill-[var(--accent-mint)]", 3));
     } else if (title.includes("Magic link")) {
       e.push(R(70, 34, 60, 4, "fill-foreground/40", 2));
       e.push(R(40, 50, 120, 11, "fill-none stroke-foreground/30", 4, 1));
@@ -341,10 +343,11 @@ function render(
       e.push(R(76, 44, 48, 5, "fill-foreground/25", 2), R(76, 56, 40, 2, "fill-foreground/15", 1), R(76, 62, 40, 2, "fill-foreground/15", 1));
     } else if (title.includes("Sidebar")) {
       e.push(R(8, 8, 48, 104, "fill-foreground/5", 4));
-      e.push(R(16, 18, 32, 6, "fill-[var(--accent-mint)]", 2));
-      e.push(R(16, 30, 32, 4, "fill-foreground/25", 1), R(16, 38, 32, 4, "fill-foreground/25", 1));
-      e.push(R(16, 46, 32, 4, "fill-foreground/25", 1), R(16, 54, 32, 4, "fill-foreground/25", 1));
-      e.push(C(24, 88, 5, "fill-foreground/15"));
+      e.push(R(16, 18, 32, 6, "fill-foreground/60", 2));
+      e.push(R(16, 30, 32, 4, "fill-foreground/40", 1));
+      e.push(R(16, 46, 32, 4, "fill-[var(--accent-mint)]", 1));
+      e.push(R(16, 54, 32, 4, "fill-foreground/40", 1));
+      e.push(C(24, 88, 5, "fill-foreground/30"));
       e.push(R(64, 8, 128, 104, "fill-foreground/5", 4));
     } else if (title.includes("Floating pill")) {
       e.push(R(38, 14, 124, 24, "fill-none stroke-foreground/30", 14, 1));
@@ -386,12 +389,12 @@ function render(
       e.push(C(150, 50, 10, "fill-foreground/15"), R(135, 66, 30, 3, "fill-foreground/25", 1));
     } else if (title.includes("Masonry")) {
       e.push(R(8, 8, 56, 52, "fill-foreground/5", 4), R(72, 8, 56, 72, "fill-foreground/5", 4), R(136, 8, 56, 40, "fill-foreground/5", 4));
-      e.push(R(8, 68, 56, 44, "fill-foreground/5", 4), R(72, 88, 56, 24, "fill-foreground/5", 4), R(136, 56, 56, 56, "fill-foreground/5", 4));
+      e.push(R(8, 68, 56, 44, "fill-foreground/5", 4), R(72, 60, 56, 50, "fill-none stroke-[var(--accent-mint)]", 4, 1.5), R(136, 56, 56, 56, "fill-foreground/5", 4));
       e.push(C(36, 24, 6, "fill-foreground/15"), C(100, 24, 6, "fill-foreground/15"), C(164, 24, 6, "fill-foreground/15"));
     } else if (title.includes("Single featured")) {
-      e.push(R(28, 18, 144, 84, "fill-foreground/5", 6));
-      e.push(R(48, 42, 104, 3, "fill-foreground/25", 1), R(48, 50, 104, 3, "fill-foreground/25", 1), R(48, 58, 84, 3, "fill-foreground/25", 1));
-      e.push(C(78, 78, 8, "fill-foreground/15"), R(94, 74, 42, 3, "fill-foreground/25", 1), R(94, 80, 32, 2, "fill-foreground/15", 1));
+      e.push(R(20, 20, 160, 80, "fill-none stroke-[var(--accent-mint)]", 4, 1.5));
+      e.push(C(36, 40, 8, "fill-foreground/30"), R(50, 36, 40, 4, "fill-foreground/40", 2), R(50, 44, 32, 3, "fill-foreground/30", 2));
+      e.push(R(32, 62, 130, 2, "fill-foreground/15", 1), R(32, 68, 91, 2, "fill-foreground/15", 1), R(32, 74, 130, 2, "fill-foreground/15", 1));
     } else if (title.includes("Video")) {
       e.push(R(8, 12, 88, 48, "fill-foreground/5", 4), R(104, 12, 88, 48, "fill-foreground/5", 4));
       e.push(R(8, 68, 88, 48, "fill-foreground/5", 4), R(104, 68, 88, 48, "fill-foreground/5", 4));
@@ -403,31 +406,43 @@ function render(
       e.push(C(22, 20, 6, "fill-foreground/15"), R(32, 16, 32, 3, "fill-foreground/25", 1), R(32, 22, 22, 2, "fill-foreground/15", 1));
       e.push(C(118, 20, 6, "fill-foreground/15"), R(128, 16, 32, 3, "fill-foreground/25", 1), R(128, 22, 22, 2, "fill-foreground/15", 1));
     } else if (title.includes("Logo cloud")) {
-      e.push(R(18, 38, 42, 22, "fill-foreground/5", 4), R(68, 38, 42, 22, "fill-foreground/5", 4), R(118, 38, 42, 22, "fill-foreground/5", 4));
-      e.push(R(18, 68, 42, 22, "fill-foreground/5", 4), R(68, 68, 42, 22, "fill-foreground/5", 4), R(118, 68, 42, 22, "fill-foreground/5", 4));
+      e.push(R(30, 20, 140, 70, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(48, 36, 104, 2, "fill-foreground/15", 1), R(48, 42, 73, 2, "fill-foreground/15", 1));
+      e.push(R(48, 48, 104, 2, "fill-foreground/15", 1), R(48, 54, 73, 2, "fill-foreground/15", 1));
+      e.push(C(86, 102, 2, "fill-foreground/30"), C(96, 102, 2, "fill-[var(--accent-mint)]"), C(106, 102, 2, "fill-foreground/30"), C(116, 102, 2, "fill-foreground/30"));
     } else if (title.includes("Carousel")) {
       e.push(R(28, 18, 144, 72, "fill-foreground/5", 6));
       e.push(R(48, 48, 104, 3, "fill-foreground/25", 1), R(48, 56, 104, 3, "fill-foreground/25", 1));
       e.push(C(78, 72, 6, "fill-foreground/15"), R(88, 68, 42, 3, "fill-foreground/25", 1));
-      e.push(C(82, 98, 4, "fill-[var(--accent-mint)]"), C(100, 98, 4, "fill-foreground/15"), C(118, 98, 4, "fill-foreground/15"));
+      e.push(C(156, 60, 3, "fill-[var(--accent-mint)]"), R(162, 58, 28, 4, "fill-foreground/40", 2));
+      e.push(C(86, 98, 2, "fill-foreground/30"), C(96, 98, 2, "fill-[var(--accent-mint)]"), C(106, 98, 2, "fill-foreground/30"), C(116, 98, 2, "fill-foreground/30"));
     }
   } else if (cat === "Footer") {
     if (title.includes("Multi-column") || title.includes("sitemap")) {
-      e.push(R(8, 8, 184, 104, "fill-foreground/5", 4));
-      e.push(R(18, 18, 28, 8, "fill-[var(--accent-mint)]", 2));
-      e.push(R(18, 36, 22, 3, "fill-foreground/15", 1), R(18, 42, 22, 3, "fill-foreground/15", 1), R(18, 48, 22, 3, "fill-foreground/15", 1));
-      e.push(R(68, 32, 28, 4, "fill-foreground/25", 1), R(68, 42, 22, 3, "fill-foreground/15", 1), R(68, 48, 22, 3, "fill-foreground/15", 1));
-      e.push(R(118, 32, 28, 4, "fill-foreground/25", 1), R(118, 42, 22, 3, "fill-foreground/15", 1), R(118, 48, 22, 3, "fill-foreground/15", 1));
-      e.push(L(18, 88, 182, 88, "stroke-foreground/15"), R(18, 96, 80, 3, "fill-foreground/15", 1));
+      e.push(R(4, 4, 50, 112, "fill-foreground/8", 2));
+      e.push(R(12, 14, 34, 6, "fill-foreground/15", 2));
+      e.push(R(12, 26, 34, 6, "fill-[var(--accent-mint)]", 2));
+      e.push(R(12, 38, 34, 6, "fill-foreground/15", 2));
+      e.push(R(12, 50, 34, 6, "fill-foreground/15", 2));
+      e.push(R(62, 14, 56, 36, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(124, 14, 66, 36, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(62, 58, 128, 48, "fill-none stroke-foreground/30", 4, 1));
     } else if (title.includes("Minimal")) {
-      e.push(R(8, 80, 184, 28, "fill-foreground/5", 4));
-      e.push(R(18, 88, 22, 8, "fill-[var(--accent-mint)]", 2));
-      e.push(R(50, 90, 18, 3, "fill-foreground/15", 1), R(74, 90, 18, 3, "fill-foreground/15", 1), R(98, 90, 18, 3, "fill-foreground/15", 1));
-      e.push(R(142, 88, 38, 8, "fill-foreground/15", 2));
+      e.push(R(4, 4, 192, 16, "fill-foreground/10", 2));
+      e.push(R(14, 9, 20, 6, "fill-[var(--accent-mint)]", 2));
+      e.push(R(60, 11, 16, 3, "fill-foreground/40", 2), R(84, 11, 16, 3, "fill-foreground/40", 2), R(108, 11, 16, 3, "fill-foreground/40", 2));
+      e.push(R(10, 28, 88, 40, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(102, 28, 88, 40, "fill-none stroke-foreground/30", 4, 1));
+      e.push(R(10, 74, 180, 36, "fill-none stroke-foreground/30", 4, 1));
     } else if (title.includes("Giant logo")) {
-      e.push(R(72, 82, 56, 12, "fill-[var(--accent-mint)]", 4));
-      e.push(R(38, 68, 18, 3, "fill-foreground/15", 1), R(62, 68, 18, 3, "fill-foreground/15", 1));
-      e.push(R(86, 68, 18, 3, "fill-foreground/15", 1), R(110, 68, 18, 3, "fill-foreground/15", 1));
+      e.push(R(4, 4, 36, 112, "fill-foreground/8", 2));
+      e.push(R(44, 4, 70, 112, "fill-foreground/5", 2));
+      e.push(R(50, 12, 58, 12, "fill-foreground/15", 2));
+      e.push(R(50, 30, 58, 12, "fill-[var(--accent-mint)]", 2));
+      e.push(R(50, 48, 58, 12, "fill-foreground/15", 2));
+      e.push(R(50, 66, 58, 12, "fill-foreground/15", 2));
+      e.push(R(50, 84, 58, 12, "fill-foreground/15", 2));
+      e.push(R(120, 10, 72, 100, "fill-none stroke-foreground/30", 4, 1));
     } else if (title.includes("Newsletter")) {
       e.push(R(8, 8, 184, 104, "fill-foreground/5", 4));
       e.push(R(38, 52, 94, 12, "fill-none stroke-foreground/30", 4, 1));
@@ -457,14 +472,11 @@ function render(
       e.push(R(18, 50, 68, 3, "fill-foreground/25", 1), R(114, 50, 68, 3, "fill-foreground/25", 1));
       e.push(R(18, 84, 68, 3, "fill-foreground/25", 1), R(114, 84, 68, 3, "fill-foreground/25", 1));
     } else if (title.includes("Chat-bubble")) {
-      e.push(R(18, 8, 72, 28, "fill-foreground/5", 4));
-      e.push(R(110, 8, 72, 28, "fill-foreground/10", 4));
-      e.push(R(18, 44, 72, 28, "fill-foreground/5", 4));
-      e.push(R(110, 44, 72, 28, "fill-foreground/10", 4));
-      e.push(R(18, 80, 72, 28, "fill-foreground/5", 4));
-      e.push(R(110, 80, 72, 28, "fill-foreground/10", 4));
-      e.push(R(28, 16, 52, 3, "fill-foreground/25", 1), R(120, 16, 52, 3, "fill-foreground/25", 1));
-      e.push(R(28, 52, 52, 3, "fill-foreground/25", 1), R(120, 52, 52, 3, "fill-foreground/25", 1));
+      e.push(C(26, 20, 4, "fill-[var(--accent-mint)]"), R(36, 18, 140, 5, "fill-foreground/40", 2));
+      e.push(C(26, 38, 4, "fill-[var(--accent-mint)]"), R(36, 36, 140, 5, "fill-foreground/40", 2));
+      e.push(C(26, 56, 4, "fill-foreground/15"), R(36, 54, 140, 5, "fill-foreground/40", 2));
+      e.push(C(26, 74, 4, "fill-foreground/15"), R(36, 72, 140, 5, "fill-foreground/40", 2));
+      e.push(C(26, 92, 4, "fill-foreground/15"), R(36, 90, 140, 5, "fill-foreground/40", 2));
     } else if (title.includes("Searchable")) {
       e.push(R(38, 8, 124, 16, "fill-none stroke-foreground/30", 4, 1));
       e.push(C(52, 16, 4, "fill-none"), R(38, 32, 124, 16, "fill-foreground/5", 4), R(38, 54, 124, 16, "fill-foreground/5", 4), R(38, 76, 124, 16, "fill-foreground/5", 4));
