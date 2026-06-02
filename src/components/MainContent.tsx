@@ -866,20 +866,33 @@ export function MainContent({ activeCategory, searchQuery }: MainContentProps) {
     return filtered;
   }, [activeCategory, searchQuery]);
 
+  const getCategoryAnchorId = (category: string) => {
+    return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  };
+
+  const isFirstInCategory = (prompt: Prompt, index: number) => {
+    if (index === 0) return true;
+    return filteredPrompts[index - 1]?.category !== prompt.category;
+  };
+
   return (
     <main className="flex-1 overflow-y-auto min-w-0">
       <Header totalPrompts={92} totalCategories={15} />
 
       <section className="grid grid-cols-1 gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10 md:px-10 md:py-10 sm:grid-cols-2 lg:grid-cols-3">
         {filteredPrompts.map((prompt, index) => (
-          <PromptCard
+          <div
             key={prompt.id}
-            title={prompt.title}
-            description={prompt.description}
-            category={prompt.category}
-            prompt={prompt.prompt}
-            index={index}
-          />
+            id={isFirstInCategory(prompt, index) ? getCategoryAnchorId(prompt.category) : undefined}
+          >
+            <PromptCard
+              title={prompt.title}
+              description={prompt.description}
+              category={prompt.category}
+              prompt={prompt.prompt}
+              index={index}
+            />
+          </div>
         ))}
       </section>
 

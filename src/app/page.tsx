@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MainContent } from "@/components/MainContent";
 
@@ -29,11 +29,31 @@ export default function Home() {
     }
   };
 
+  const handleCategoryChange = useCallback((category: string) => {
+    setActiveCategory(category);
+    
+    setTimeout(() => {
+      const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      const element = document.getElementById(anchorId);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      } else if (category === "All") {
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+          mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    }, 100);
+  }, []);
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={handleCategoryChange}
         isDarkMode={isDarkMode}
         onThemeToggle={handleThemeToggle}
         searchQuery={searchQuery}

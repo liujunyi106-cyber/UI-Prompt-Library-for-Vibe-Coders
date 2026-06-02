@@ -37,11 +37,15 @@ export function PromptCard({
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        y: -6,
+        transition: { duration: 0.2 }
+      }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       className={cn(
         "group relative flex flex-col rounded-xl border p-4 transition-all duration-200",
         isHovered
-          ? "border-border shadow-md"
+          ? "border-primary/40 shadow-lg ring-1 ring-primary/20"
           : "border-border/50 hover:border-border"
       )}
       onMouseEnter={() => setIsHovered(true)}
