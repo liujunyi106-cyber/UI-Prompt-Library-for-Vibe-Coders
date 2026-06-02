@@ -61,8 +61,8 @@ export function PromptCard({
       </div>
 
       <div className="flex-1">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+        <h3 className="text-base font-semibold text-foreground">{title}</h3>
+        <p className="mt-1 text-[11px] text-muted-foreground/70 line-clamp-2">
           {description}
         </p>
         <span className="mt-2 inline-block rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">

@@ -30,7 +30,7 @@ export function Header({ totalPrompts, totalCategories }: HeaderProps) {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl xl:text-6xl"
         >
-          UI Prompt Library for Vibe Coders
+          UI Prompt Library for <span className="text-orange-500">Vibe Coders</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}

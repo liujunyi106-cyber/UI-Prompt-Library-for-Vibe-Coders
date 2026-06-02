@@ -935,10 +935,10 @@ export function MainContent({ activeCategory, searchQuery, onCategoryVisible }: 
             className="px-4 py-6 sm:px-6 sm:py-10 md:px-10 md:py-10"
           >
             <div className="mb-6">
-              <h2 className="text-[50px] font-bold text-foreground leading-tight">
+              <h2 className="text-[46px] font-bold text-foreground leading-tight">
                 {category.name}
               </h2>
-              <p className="text-[36px] text-muted-foreground mt-2">
+              <p className="text-[28px] text-muted-foreground/70 mt-2">
                 {category.count} prompts
               </p>
             </div>
