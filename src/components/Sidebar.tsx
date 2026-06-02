@@ -114,6 +114,8 @@ export function Sidebar({
               size={16}
             />
             <input
+              id="search-prompts"
+              name="search"
               type="text"
               placeholder="Search prompts…"
               value={searchQuery}
