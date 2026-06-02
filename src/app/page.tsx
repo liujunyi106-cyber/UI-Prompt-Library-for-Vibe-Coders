@@ -74,6 +74,10 @@ export default function Home() {
     }, 100);
   }, []);
 
+  const handleCategoryVisible = useCallback((category: string) => {
+    setActiveCategory(category);
+  }, []);
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
@@ -84,7 +88,11 @@ export default function Home() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <MainContent activeCategory={activeCategory} searchQuery={searchQuery} />
+      <MainContent 
+        activeCategory={activeCategory} 
+        searchQuery={searchQuery}
+        onCategoryVisible={handleCategoryVisible}
+      />
     </div>
   );
 }

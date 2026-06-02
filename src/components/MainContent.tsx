@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { Header } from "./Header";
 import { PromptCard } from "./PromptCard";
 import { motion } from "framer-motion";
@@ -844,50 +844,119 @@ const prompts: Prompt[] = [
   },
 ];
 
+const categories = [
+  { name: "Auth Forms", count: 6 },
+  { name: "Pricing", count: 8 },
+  { name: "Features / Bento", count: 8 },
+  { name: "Hero Sections", count: 8 },
+  { name: "CTA Banners", count: 7 },
+  { name: "Stats Bars", count: 7 },
+  { name: "Nav Bars", count: 8 },
+  { name: "Testimonials", count: 8 },
+  { name: "Footer", count: 5 },
+  { name: "FAQ", count: 5 },
+  { name: "Dashboards", count: 6 },
+  { name: "Onboarding", count: 4 },
+  { name: "Blog / Content", count: 4 },
+  { name: "Contact", count: 3 },
+  { name: "Bonus", count: 5 },
+];
+
 interface MainContentProps {
   activeCategory: string;
   searchQuery: string;
+  onCategoryVisible?: (category: string) => void;
 }
 
-export function MainContent({ activeCategory, searchQuery }: MainContentProps) {
-  const filteredPrompts = useMemo(() => {
+export function MainContent({ activeCategory, searchQuery, onCategoryVisible }: MainContentProps) {
+  const mainRef = useRef<HTMLElement>(null);
+
+  const getCategoryAnchorId = (category: string) => {
+    return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  };
+
+  useEffect(() => {
+    const mainElement = mainRef.current;
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const scrollTop = mainElement.scrollTop;
+      const headerOffset = 200;
+
+      for (let i = categories.length - 1; i >= 0; i--) {
+        const element = document.getElementById(getCategoryAnchorId(categories[i].name));
+        if (element && element.offsetTop - headerOffset <= scrollTop) {
+          onCategoryVisible?.(categories[i].name);
+          return;
+        }
+      }
+      onCategoryVisible?.("All");
+    };
+
+    mainElement.addEventListener('scroll', handleScroll);
+    return () => mainElement.removeEventListener('scroll', handleScroll);
+  }, [onCategoryVisible]);
+
+  const getPromptsByCategory = (category: string) => {
+    return prompts.filter((p) => p.category === category);
+  };
+
+  const getFilteredPrompts = () => {
     if (searchQuery.trim()) {
       return prompts.filter((p) =>
         p.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     return prompts;
-  }, [searchQuery]);
-
-  const getCategoryAnchorId = (category: string) => {
-    return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-  };
-
-  const isFirstInCategory = (prompt: Prompt, index: number) => {
-    if (index === 0) return true;
-    return filteredPrompts[index - 1]?.category !== prompt.category;
   };
 
   return (
-    <main className="flex-1 overflow-y-auto min-w-0">
+    <main ref={mainRef} className="flex-1 overflow-y-auto min-w-0">
       <Header totalPrompts={92} totalCategories={15} />
 
-      <section className="grid grid-cols-1 gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10 md:px-10 md:py-10 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredPrompts.map((prompt, index) => (
-          <div
-            key={prompt.id}
-            id={isFirstInCategory(prompt, index) ? getCategoryAnchorId(prompt.category) : undefined}
-          >
+      {searchQuery.trim() ? (
+        <section className="grid grid-cols-1 gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-10 md:px-10 md:py-10 sm:grid-cols-2 lg:grid-cols-3">
+          {getFilteredPrompts().map((prompt, index) => (
             <PromptCard
+              key={prompt.id}
               title={prompt.title}
               description={prompt.description}
               category={prompt.category}
               prompt={prompt.prompt}
               index={index}
             />
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
+      ) : (
+        categories.map((category) => (
+          <section
+            key={category.name}
+            id={getCategoryAnchorId(category.name)}
+            className="px-4 py-6 sm:px-6 sm:py-10 md:px-10 md:py-10"
+          >
+            <div className="mb-6">
+              <h2 className="text-[50px] font-bold text-foreground leading-tight">
+                {category.name}
+              </h2>
+              <p className="text-[36px] text-muted-foreground mt-2">
+                {category.count} prompts
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {getPromptsByCategory(category.name).map((prompt, index) => (
+                <PromptCard
+                  key={prompt.id}
+                  title={prompt.title}
+                  description={prompt.description}
+                  category={prompt.category}
+                  prompt={prompt.prompt}
+                  index={index}
+                />
+              ))}
+            </div>
+          </section>
+        ))
+      )}
 
       <motion.footer
         initial={{ opacity: 0 }}
