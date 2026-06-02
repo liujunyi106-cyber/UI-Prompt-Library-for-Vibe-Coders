@@ -25,7 +25,20 @@ export function PromptCard({
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(prompt);
+      // 尝试使用现代 Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(prompt);
+      } else {
+        // 备用方案：使用传统方法
+        const textArea = document.createElement("textarea");
+        textArea.value = prompt;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
@@ -71,12 +84,10 @@ export function PromptCard({
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={handleCopy}
           className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+            "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:scale-[1.02] active:scale-[0.98]",
             isCopied
               ? "bg-green-500 text-white"
               : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -93,7 +104,7 @@ export function PromptCard({
               Copy prompt
             </>
           )}
-        </motion.button>
+        </button>
       </div>
     </motion.article>
   );
