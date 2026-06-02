@@ -29,6 +29,35 @@ export default function Home() {
     }
   };
 
+  const smoothScrollTo = (element: HTMLElement, duration: number = 800) => {
+    const mainContent = document.querySelector('main');
+    if (!mainContent) return;
+
+    const targetPosition = element.offsetTop - 20;
+    const startPosition = mainContent.scrollTop;
+    const distance = targetPosition - startPosition;
+    let startTime: number | null = null;
+
+    const easeInOutCubic = (t: number): number => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const animation = (currentTime: number) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      const easeProgress = easeInOutCubic(progress);
+
+      mainContent.scrollTop = startPosition + distance * easeProgress;
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
   const handleCategoryChange = useCallback((category: string) => {
     setActiveCategory(category);
     
@@ -36,17 +65,14 @@ export default function Home() {
       const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
       const element = document.getElementById(anchorId);
       if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
+        smoothScrollTo(element, 800);
       } else if (category === "All") {
         const mainContent = document.querySelector('main');
         if (mainContent) {
-          mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+          smoothScrollTo(mainContent, 600);
         }
       }
-    }, 100);
+    }, 150);
   }, []);
 
   return (
