@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  other: {
+    'google': 'notranslate',
+    'translate': 'no',
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" translate="no">
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
