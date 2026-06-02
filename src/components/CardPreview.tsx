@@ -9,18 +9,19 @@ interface CardPreviewProps {
 
 export function CardPreview({ category, title }: CardPreviewProps) {
   const id = `${category}-${title}`.replace(/\s+/g, "-").toLowerCase();
+  let counter = 0;
 
   const R = (x: number, y: number, w: number, h: number, cls: string, rx = 3, sw = 0) => (
-    <rect key={`${id}-${x}-${y}-${w}`} x={x} y={y} width={w} height={h} className={cls} rx={rx} strokeWidth={sw} />
+    <rect key={`${id}-r-${counter++}`} x={x} y={y} width={w} height={h} className={cls} rx={rx} strokeWidth={sw} />
   );
   const C = (cx: number, cy: number, r: number, cls: string) => (
-    <circle key={`${id}-c-${cx}-${cy}`} cx={cx} cy={cy} r={r} className={cls} />
+    <circle key={`${id}-c-${counter++}`} cx={cx} cy={cy} r={r} className={cls} />
   );
   const L = (x1: number, y1: number, x2: number, y2: number, cls: string, sw = 0.5) => (
-    <line key={`${id}-l-${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} className={cls} strokeWidth={sw} />
+    <line key={`${id}-l-${counter++}`} x1={x1} y1={y1} x2={x2} y2={y2} className={cls} strokeWidth={sw} />
   );
   const Pg = (points: string, cls: string) => (
-    <polygon key={`${id}-pg-${points.slice(0, 10)}`} points={points} className={cls} />
+    <polygon key={`${id}-pg-${counter++}`} points={points} className={cls} />
   );
 
   return (
