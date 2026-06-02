@@ -851,20 +851,13 @@ interface MainContentProps {
 
 export function MainContent({ activeCategory, searchQuery }: MainContentProps) {
   const filteredPrompts = useMemo(() => {
-    let filtered = prompts;
-    
-    if (activeCategory !== "All") {
-      filtered = filtered.filter((p) => p.category === activeCategory);
-    }
-    
     if (searchQuery.trim()) {
-      filtered = filtered.filter((p) =>
+      return prompts.filter((p) =>
         p.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
-    return filtered;
-  }, [activeCategory, searchQuery]);
+    return prompts;
+  }, [searchQuery]);
 
   const getCategoryAnchorId = (category: string) => {
     return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;

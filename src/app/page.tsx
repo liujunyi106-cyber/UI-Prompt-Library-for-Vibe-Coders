@@ -58,29 +58,20 @@ export default function Home() {
   };
 
   const handleCategoryChange = useCallback((category: string) => {
-    const mainContent = document.querySelector('main');
-    if (!mainContent) return;
-
-    const currentScrollPosition = mainContent.scrollTop;
-    
     setActiveCategory(category);
     
     setTimeout(() => {
       if (category === "All") {
-        smoothScrollTo(0, 600);
+        smoothScrollTo(0, 800);
       } else {
-        mainContent.scrollTop = 0;
-        
-        setTimeout(() => {
-          const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-          const element = document.getElementById(anchorId);
-          if (element) {
-            const targetPosition = element.offsetTop - 20;
-            smoothScrollTo(targetPosition, 800);
-          }
-        }, 50);
+        const anchorId = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        const element = document.getElementById(anchorId);
+        if (element) {
+          const targetPosition = element.offsetTop - 20;
+          smoothScrollTo(targetPosition, 800);
+        }
       }
-    }, 150);
+    }, 100);
   }, []);
 
   return (
