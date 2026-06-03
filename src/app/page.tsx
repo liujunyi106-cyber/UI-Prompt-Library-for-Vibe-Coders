@@ -101,12 +101,17 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [language, setLanguage] = useState<'en' | 'cn'>('cn');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       setIsDarkMode(true);
       document.documentElement.classList.add("dark");
+    }
+    const savedLang = localStorage.getItem("language");
+    if (savedLang === "en" || savedLang === "cn") {
+      setLanguage(savedLang);
     }
   }, []);
 
@@ -120,6 +125,12 @@ export default function Home() {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+  };
+
+  const handleLanguageToggle = () => {
+    const newLang = language === 'en' ? 'cn' : 'en';
+    setLanguage(newLang);
+    localStorage.setItem("language", newLang);
   };
 
   const smoothScrollTo = (targetPosition: number, duration: number = 800) => {
@@ -181,11 +192,14 @@ export default function Home() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         prompts={promptsForSearch}
+        language={language}
+        onLanguageToggle={handleLanguageToggle}
       />
       <MainContent 
         activeCategory={activeCategory} 
         searchQuery={searchQuery}
         onCategoryVisible={handleCategoryVisible}
+        language={language}
       />
     </div>
   );

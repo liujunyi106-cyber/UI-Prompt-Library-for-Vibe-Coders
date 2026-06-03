@@ -4,12 +4,15 @@ import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CardPreview } from "./CardPreview";
+import { t, type Language } from "@/lib/translations";
 
 interface PromptCardProps {
   title: string;
   description: string;
   category: string;
   prompt: string;
+  promptCn: string;
+  language?: Language;
   index?: number;
 }
 
@@ -18,33 +21,42 @@ export function PromptCard({
   description,
   category,
   prompt,
+  promptCn,
+  language = 'cn',
   index = 0,
 }: PromptCardProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCopy = async () => {
-    console.log("Copy clicked, prompt:", prompt?.substring(0, 30));
+    const textToCopy = language === 'cn' ? promptCn : prompt;
+    console.log("Copy clicked, prompt:", textToCopy?.substring(0, 30));
     
     try {
-      const textArea = document.createElement("textarea");
-      textArea.value = prompt;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      textArea.style.top = "-999999px";
-      textArea.style.opacity = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      const result = document.execCommand("copy");
-      console.log("Copy result:", result);
-      
-      document.body.removeChild(textArea);
-      
-      if (result) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const result = document.execCommand("copy");
+        console.log("Copy result:", result);
+        
+        document.body.removeChild(textArea);
+        
+        if (result) {
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2000);
+        }
       }
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -93,12 +105,12 @@ export function PromptCard({
           {isCopied ? (
             <>
               <Check size={16} />
-              Copied!
+              {t('card.copied', language)}
             </>
           ) : (
             <>
               <Copy size={16} />
-              Copy prompt
+              {t('card.copy', language)}
             </>
           )}
         </button>

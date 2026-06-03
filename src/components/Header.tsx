@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { t, type Language } from "@/lib/translations";
 
 interface HeaderProps {
   totalPrompts: number;
   totalCategories: number;
+  language: Language;
 }
 
-export function Header({ totalPrompts, totalCategories }: HeaderProps) {
+export function Header({ totalPrompts, totalCategories, language }: HeaderProps) {
   return (
     <motion.header
       initial={{ opacity: 0, y: 20 }}
@@ -22,7 +24,7 @@ export function Header({ totalPrompts, totalCategories }: HeaderProps) {
           transition={{ delay: 0.2 }}
           className="text-xs font-medium text-muted-foreground sm:text-sm"
         >
-          {totalPrompts} prompts · {totalCategories} categories
+          {totalPrompts} {t('header.prompts', language)} · {totalCategories} {t('header.categories', language)}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -30,7 +32,7 @@ export function Header({ totalPrompts, totalCategories }: HeaderProps) {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl xl:text-6xl"
         >
-          UI Prompt Library for <span className="text-orange-500">Vibe Coders</span>
+          UI Prompt Library for <span className="text-orange-500">{t('header.title', language)}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
@@ -38,9 +40,7 @@ export function Header({ totalPrompts, totalCategories }: HeaderProps) {
           transition={{ delay: 0.4 }}
           className="max-w-2xl text-lg text-muted-foreground sm:text-xl"
         >
-          A curated library of layout prompts for vibe coders. Pick a structure,
-          copy the prompt, paste it into your AI tool — and let it match your
-          screenshot&apos;s aesthetic.
+          {t('header.description', language)}
         </motion.p>
       </div>
     </motion.header>

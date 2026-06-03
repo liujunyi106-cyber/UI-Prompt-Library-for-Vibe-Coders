@@ -5,29 +5,31 @@ import Link from "next/link";
 import { Search, Moon, Sun, Menu, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { t, type Language } from "@/lib/translations";
 
 interface Category {
   name: string;
   count: number;
+  translationKey: string;
 }
 
 const categories: Category[] = [
-  { name: "All", count: 92 },
-  { name: "Auth Forms", count: 6 },
-  { name: "Pricing", count: 8 },
-  { name: "Features / Bento", count: 8 },
-  { name: "Hero Sections", count: 8 },
-  { name: "CTA Banners", count: 7 },
-  { name: "Stats Bars", count: 7 },
-  { name: "Nav Bars", count: 8 },
-  { name: "Testimonials", count: 8 },
-  { name: "Footer", count: 5 },
-  { name: "FAQ", count: 5 },
-  { name: "Dashboards", count: 6 },
-  { name: "Onboarding", count: 4 },
-  { name: "Blog / Content", count: 4 },
-  { name: "Contact", count: 3 },
-  { name: "Bonus", count: 5 },
+  { name: "All", count: 92, translationKey: "sidebar.all" },
+  { name: "Auth Forms", count: 6, translationKey: "sidebar.authForms" },
+  { name: "Pricing", count: 8, translationKey: "sidebar.pricing" },
+  { name: "Features / Bento", count: 8, translationKey: "sidebar.featuresBento" },
+  { name: "Hero Sections", count: 8, translationKey: "sidebar.heroSections" },
+  { name: "CTA Banners", count: 7, translationKey: "sidebar.ctaBanners" },
+  { name: "Stats Bars", count: 7, translationKey: "sidebar.statsBars" },
+  { name: "Nav Bars", count: 8, translationKey: "sidebar.navBars" },
+  { name: "Testimonials", count: 8, translationKey: "sidebar.testimonials" },
+  { name: "Footer", count: 5, translationKey: "sidebar.footer" },
+  { name: "FAQ", count: 5, translationKey: "sidebar.faq" },
+  { name: "Dashboards", count: 6, translationKey: "sidebar.dashboards" },
+  { name: "Onboarding", count: 4, translationKey: "sidebar.onboarding" },
+  { name: "Blog / Content", count: 4, translationKey: "sidebar.blogContent" },
+  { name: "Contact", count: 3, translationKey: "sidebar.contact" },
+  { name: "Bonus", count: 5, translationKey: "sidebar.bonus" },
 ];
 
 interface Prompt {
@@ -43,6 +45,8 @@ interface SidebarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   prompts: Prompt[];
+  language: 'en' | 'cn';
+  onLanguageToggle: () => void;
 }
 
 export function Sidebar({
@@ -53,6 +57,8 @@ export function Sidebar({
   searchQuery,
   onSearchChange,
   prompts,
+  language,
+  onLanguageToggle,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -177,7 +183,7 @@ export function Sidebar({
               id="search-prompts"
               name="search"
               type="text"
-              placeholder="Search prompts…"
+              placeholder={t('sidebar.searchPlaceholder', language)}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -215,7 +221,7 @@ export function Sidebar({
                     ) : (
                       <>
                         <span className="flex-1 text-left whitespace-nowrap">
-                          {category.name}
+                          {t(category.translationKey as any, language)}
                         </span>
                         <span className="text-xs text-muted-foreground ml-2">
                           {category.count}
@@ -228,7 +234,7 @@ export function Sidebar({
             })
           ) : (
             <li className="px-3 py-2 text-sm text-muted-foreground">
-              No categories found
+              {language === 'cn' ? '未找到分类' : 'No categories found'}
             </li>
           )}
         </ul>
@@ -241,15 +247,23 @@ export function Sidebar({
               href="/about"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
             >
-              About
+              {language === 'cn' ? '关于' : 'About'}
             </Link>
           )}
-          <button
-            onClick={onThemeToggle}
-            className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onLanguageToggle}
+              className="rounded-lg p-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
+              {t('sidebar.languageLabel', language)}
+            </button>
+            <button
+              onClick={onThemeToggle}
+              className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
         </div>
       </div>
     </>
