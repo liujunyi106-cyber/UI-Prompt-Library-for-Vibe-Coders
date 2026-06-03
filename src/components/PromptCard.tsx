@@ -6,9 +6,29 @@ import { cn } from "@/lib/utils";
 import { CardPreview } from "./CardPreview";
 import { t, type Language } from "@/lib/translations";
 
+const categoryTranslationKeys: Record<string, string> = {
+  "Auth Forms": "sidebar.authForms",
+  "Pricing": "sidebar.pricing",
+  "Features / Bento": "sidebar.featuresBento",
+  "Hero Sections": "sidebar.heroSections",
+  "CTA Banners": "sidebar.ctaBanners",
+  "Stats Bars": "sidebar.statsBars",
+  "Nav Bars": "sidebar.navBars",
+  "Testimonials": "sidebar.testimonials",
+  "Footer": "sidebar.footer",
+  "FAQ": "sidebar.faq",
+  "Dashboards": "sidebar.dashboards",
+  "Onboarding": "sidebar.onboarding",
+  "Blog / Content": "sidebar.blogContent",
+  "Contact": "sidebar.contact",
+  "Bonus": "sidebar.bonus",
+};
+
 interface PromptCardProps {
   title: string;
+  titleCn: string;
   description: string;
+  descriptionCn: string;
   category: string;
   prompt: string;
   promptCn: string;
@@ -18,7 +38,9 @@ interface PromptCardProps {
 
 export function PromptCard({
   title,
+  titleCn,
   description,
+  descriptionCn,
   category,
   prompt,
   promptCn,
@@ -81,12 +103,12 @@ export function PromptCard({
       </div>
 
       <div className="flex-1">
-        <h3 className="text-base font-semibold text-foreground">{title}</h3>
+        <h3 className="text-base font-semibold text-foreground">{language === 'cn' ? titleCn : title}</h3>
         <p className="mt-1 text-[11px] text-muted-foreground/70 line-clamp-2">
-          {description}
+          {language === 'cn' ? descriptionCn : description}
         </p>
         <span className="mt-2 inline-block rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-          {category}
+          {t(categoryTranslationKeys[category] as any, language) || category}
         </span>
       </div>
 

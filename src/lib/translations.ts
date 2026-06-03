@@ -2,7 +2,9 @@ export type Language = 'en' | 'cn';
 
 export const translations = {
   // Header
-  'header.title': { en: 'Vibe Coders', cn: 'Vibe Coders' },
+  'header.title': { en: 'UI Prompt Library for', cn: '' },
+  'header.titleBrand': { en: 'Vibe Coders', cn: 'Vibe Coders' },
+  'header.titleSuffix': { en: '', cn: '的用户界面提示库' },
   'header.description': { en: 'A curated set of 92 prompts for vibe coding. Copy from the web app or browse prompts for the browser extension. Get your collection of high-quality, pre-written prompts for vibe coders.', cn: '为 vibe 编码策划的 92 个提示词集合。从 Web 应用复制或浏览浏览器扩展的提示词。获取高质量、预先编写的 vibe 编码提示词合集。' },
   'header.prompts': { en: 'Prompts', cn: '提示词' },
   'header.categories': { en: 'Categories', cn: '分类' },

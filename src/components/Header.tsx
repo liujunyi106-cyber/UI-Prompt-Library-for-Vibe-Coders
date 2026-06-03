@@ -32,7 +32,11 @@ export function Header({ totalPrompts, totalCategories, language }: HeaderProps)
           transition={{ delay: 0.3, duration: 0.5 }}
           className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl xl:text-6xl"
         >
-          UI Prompt Library for <span className="text-orange-500">{t('header.title', language)}</span>
+          {language === 'cn' ? (
+            <><span className="text-orange-500">{t('header.titleBrand', language)}</span>{t('header.titleSuffix', language)}</>
+          ) : (
+            <>{t('header.title', language)} <span className="text-orange-500">{t('header.titleBrand', language)}</span></>
+          )}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
